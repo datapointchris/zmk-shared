@@ -1,0 +1,62 @@
+parse_config:
+  # Custom behaviors and their display forms
+  # keymap-drawer will automatically parse custom behaviors if they are properly defined
+  # in your .dtsi files, but we can provide hints about special ones
+  
+  # Sticky label for one-shot/sticky keys
+  sticky_label: "⏱"
+  
+  # Transparent key styling - use just "▽" in YAML
+  trans_legend:
+    t: "▽"
+    type: trans
+  
+  # Simple mappings for tap-dance behaviors
+  raw_binding_map:
+    # Shorthand aliases for common keys
+    "▽": {t: "▽", type: trans}  # Transparent key shorthand
+    "&bt_0": "BT 0"
+    "&bt_1": "BT 1"
+    "&bt_2": "BT 2"
+    "&bt_3": "BT 3"
+    "&caps_shift": "Shift/Caps"
+    "&caps_return": "Enter/Caps"
+  
+  # Define layer names if display-name doesn't work
+  layer_names:
+    - BASE
+    - DEVLEFT
+    - DEVRIGHT
+    - NPAD
+    - SYSTEM
+    - MOUSE
+    - NAV
+
+draw_config:
+  # Optional: Customize appearance
+  key_w: 100
+  key_h: 100
+  split_gap: 30
+  combo_w: 40
+  combo_h: 36
+  
+  # Font sizes
+  inner_pad_w: 2
+  inner_pad_h: 2
+  outer_pad_w: 20
+  outer_pad_h: 20
+  
+  # Legend sizes
+  glyph_tap_size: 15
+  glyph_hold_size: 14
+  glyph_shifted_size: 14
+  shrink_wide_legends: 0
+
+  svg_extra_style: |
+    rect.key { fill: #f6f8fa; stroke: #c9cccf; stroke-width: 1;}
+    rect.held, rect.combo.held { fill: #fdd;}
+    rect.ghost, rect.combo.ghost { fill: #ddd; stroke-dasharray: none; stroke-width: 1;}
+    rect.thumb, rect.combo.thumb { fill: #303030; stroke-width: 0;}
+    svg.keymap { background-color: #303030;}
+    text.label { stroke: none; fill: #e0f0f0;}
+    path.combo { stroke-width: 3;}
