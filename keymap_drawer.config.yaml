@@ -19,17 +19,14 @@ parse_config:
     "&bt_1": "BT 1"
     "&bt_2": "BT 2"
     "&bt_3": "BT 3"
-    "&caps_shift": "Shift/Caps"
-    "&caps_return": "Enter/Caps"
-  
+    "&caps_aero": "Aero/Caps"
+
   # Define layer names if display-name doesn't work
   layer_names:
     - BASE
     - DEVLEFT
-    - DEVRIGHT
     - NPAD
     - SYSTEM
-    - MOUSE
     - NAV
 
 draw_config:

@@ -26,7 +26,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 ### Layer Defines
 ```text
-BASE=0, DEVLEFT=1, DEVRIGHT=2, NPAD=3, SYSTEM=4, MOUSE=5, NAV=6
+BASE=0, DEVLEFT=1, NPAD=2, SYSTEM=3, NAV=4
 ```
 
 ### Modifier Macros
@@ -74,5 +74,5 @@ When changing shared behaviors:
 
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- Layer defines are shared, but not all keyboards use all 7 layers (Corne42 skips DEVRIGHT and MOUSE)
+- Layer defines are shared — all keyboards use all 5 layers
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`

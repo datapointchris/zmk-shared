@@ -8,11 +8,9 @@
 
 #define BASE 0
 #define DEVLEFT 1
-#define DEVRIGHT 2
-#define NPAD 3
-#define SYSTEM 4
-#define MOUSE 5
-#define NAV 6
+#define NPAD 2
+#define SYSTEM 3
+#define NAV 4
 
 / {
     macros {
