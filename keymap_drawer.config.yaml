@@ -24,10 +24,12 @@ parse_config:
   # Define layer names if display-name doesn't work
   layer_names:
     - BASE
+    - COLEMAK
     - DEVLEFT
     - NPAD
     - SYSTEM
     - NAV
+    - WM
 
 draw_config:
   # Optional: Customize appearance
