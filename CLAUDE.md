@@ -9,7 +9,7 @@ All ZMK keyboard repos live under `~/code/zmk/`:
 ├── shared/     ← this repo
 ├── corne42/    Corne42 config
 ├── glove80/    Glove80 config
-└── piantor/    Piantor Pro BT config (+ Corne Choc Pro, Sofle Choc Pro)
+└── piantor/    Piantor Pro BT config
 ```
 
 When working on shared behaviors, check sibling repos under `~/code/zmk/` to understand how they're used.
@@ -18,7 +18,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 | File | Purpose |
 |---|---|
-| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, layer defines |
+| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, layer defines, OS-conditional modifiers |
 | `zephyr/module.yml` | Zephyr module registration (DTS root) |
 | `keymap_drawer.config.yaml` | Shared keymap-drawer styling config |
 
@@ -26,8 +26,32 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 ### Layer Defines
 ```text
-BASE=0, DEVLEFT=1, NPAD=2, SYSTEM=3, NAV=4
+BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6
 ```
+
+### OS-Conditional Modifier Defines
+
+Modifiers are assigned by finger function, not by keycode. The `OS_MACOS` define (set via the `os-macos` snippet) swaps pinky and middle modifiers so the same finger always performs the same function across OSes.
+
+| Finger | Function | macOS (OS_MACOS) | Linux/Win (default) |
+|--------|----------|-------------------|---------------------|
+| Index (F/J) | Primary action (copy/paste) | LGUI/RGUI | LCTRL/RCTRL |
+| Middle (D/K) | Window manager | LALT/RALT | LGUI/RGUI |
+| Ring (S/L) | Shift | LSHIFT/RSHIFT | LSHIFT/RSHIFT |
+| Pinky (A/;) | Leftover | LCTRL/RCTRL | LALT/RALT |
+
+Use `MOD_PINKY_L`, `MOD_RING_L`, `MOD_MIDDLE_L`, `MOD_INDEX_L` (and `_R` variants) in keymaps.
+
+### WM Macros
+
+- `WMK(key)` — sends Alt+key on macOS, Super+key on Linux
+- `WMSK(key)` — sends Alt+Shift+key on macOS, Super+Shift+key on Linux
+
+Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer define.
+
+### OS Build Configuration
+
+To build for macOS, add `cmake-args: -DDTS_EXTRA_CPPFLAGS=-DOS_MACOS` to `build.yaml`. Without it, Linux/Win defaults are used. Both variants can coexist in the same `build.yaml` with different `artifact-name` values.
 
 ### Modifier Macros
 
@@ -54,6 +78,14 @@ BASE=0, DEVLEFT=1, NPAD=2, SYSTEM=3, NAV=4
 - `caps_shift`: tap=RShift, double-tap=Caps Word
 - `caps_aero`: tap=AERO, double-tap=Caps Word
 
+### Colemak-DH Layer
+
+Toggle via combo: press both innermost thumbs (pos 38+39) simultaneously. Only redefines letter keys and HRM letters; everything else is `&trans` (falls through to BASE). Active on both BASE and COLEMAK layers.
+
+### WM Layer
+
+Activated by holding left outermost thumb (`&mo WM`). Sends OS-appropriate WM keycodes using `WM()` and `WMS()` macros. Uses QWERTY key positions so it works regardless of base layout.
+
 ## Build Tools
 
 All keyboard repos use the same tools and Make targets:
@@ -74,5 +106,6 @@ When changing shared behaviors:
 
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- Layer defines are shared — all keyboards use all 5 layers
+- Layer defines are shared — all keyboards use all 7 layers
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
+- Keymap YAML files show Linux/default modifier assignments; macOS swaps pinky and middle (LALT↔LGUI, RALT↔RGUI)
