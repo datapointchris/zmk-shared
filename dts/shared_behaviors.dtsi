@@ -14,28 +14,12 @@
 #define NAV 5
 #define WM 6
 
-/* OS-conditional modifier assignments (same finger = same function across OSes) */
+/* OS-conditional window manager macros (AeroSpace=Alt, i3/sway=Super) */
 #ifdef OS_MACOS
-#define MOD_PINKY_L LCTRL
-#define MOD_RING_L LSHIFT
-#define MOD_MIDDLE_L LALT
-#define MOD_INDEX_L LGUI
-#define MOD_INDEX_R RGUI
-#define MOD_MIDDLE_R RALT
-#define MOD_RING_R RSHIFT
-#define MOD_PINKY_R RCTRL
-#define WMK(key) LA(key)
+#define WMK(key)  LA(key)
 #define WMSK(key) LA(LS(key))
 #else
-#define MOD_PINKY_L LALT
-#define MOD_RING_L LSHIFT
-#define MOD_MIDDLE_L LGUI
-#define MOD_INDEX_L LCTRL
-#define MOD_INDEX_R RCTRL
-#define MOD_MIDDLE_R RGUI
-#define MOD_RING_R RSHIFT
-#define MOD_PINKY_R RALT
-#define WMK(key) LG(key)
+#define WMK(key)  LG(key)
 #define WMSK(key) LG(LS(key))
 #endif
 

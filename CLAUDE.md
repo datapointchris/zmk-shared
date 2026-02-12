@@ -18,7 +18,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 | File | Purpose |
 |---|---|
-| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, layer defines, OS-conditional modifiers |
+| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, layer defines, WM macros |
 | `zephyr/module.yml` | Zephyr module registration (DTS root) |
 | `keymap_drawer.config.yaml` | Shared keymap-drawer styling config |
 
@@ -29,18 +29,18 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6
 ```
 
-### OS-Conditional Modifier Defines
+### Home Row Mod Order (GASC)
 
-Modifiers are assigned by finger function, not by keycode. The `OS_MACOS` define (set via the `os-macos` snippet) swaps pinky and middle modifiers so the same finger always performs the same function across OSes.
+All keyboards use a unified GASC order — the same keycodes on both OSes:
 
-| Finger | Function | macOS (OS_MACOS) | Linux/Win (default) |
-|--------|----------|-------------------|---------------------|
-| Index (F/J) | Primary action (copy/paste) | LGUI/RGUI | LCTRL/RCTRL |
-| Middle (D/K) | Window manager | LALT/RALT | LGUI/RGUI |
-| Ring (S/L) | Shift | LSHIFT/RSHIFT | LSHIFT/RSHIFT |
-| Pinky (A/;) | Leftover | LCTRL/RCTRL | LALT/RALT |
+| Finger | Modifier (Left) | Modifier (Right) |
+|--------|-----------------|-------------------|
+| Pinky (A/;) | LGUI | RGUI |
+| Ring (S/L) | LALT | RALT |
+| Middle (D/K) | LSHIFT | RSHIFT |
+| Index (F/J) | LCTRL | RCTRL |
 
-Use `MOD_PINKY_L`, `MOD_RING_L`, `MOD_MIDDLE_L`, `MOD_INDEX_L` (and `_R` variants) in keymaps.
+Keymaps use actual keycodes directly (e.g., `&hml LGUI A`), not MOD_* defines.
 
 ### WM Macros
 
@@ -51,7 +51,7 @@ Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer
 
 ### OS Build Configuration
 
-To build for macOS, add `cmake-args: -DDTS_EXTRA_CPPFLAGS=-DOS_MACOS` to `build.yaml`. Without it, Linux/Win defaults are used. Both variants can coexist in the same `build.yaml` with different `artifact-name` values.
+The `OS_MACOS` define only affects `WMK()`/`WMSK()` macros (AeroSpace vs i3/sway shortcuts). Home row mods are identical on both OSes. To build for macOS, add `cmake-args: -DDTS_EXTRA_CPPFLAGS=-DOS_MACOS` to `build.yaml`. Both variants can coexist in the same `build.yaml` with different `artifact-name` values.
 
 ### Modifier Macros
 
@@ -108,4 +108,4 @@ When changing shared behaviors:
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
 - Layer defines are shared — all keyboards use all 7 layers
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
-- Keymap YAML files show Linux/default modifier assignments; macOS swaps pinky and middle (LALT↔LGUI, RALT↔RGUI)
+- Keymap YAML files show GASC modifier labels: GUI, Alt, Shift, Ctrl (same on both OSes)
