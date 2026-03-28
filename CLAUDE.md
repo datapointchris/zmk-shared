@@ -71,10 +71,11 @@ Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still suppo
 - `bt_select_0`..`bt_select_3`: macros (switch output to BLE + select profile)
 - `ctrlaltdel`: Ctrl+Alt+Del macro
 
-### Home Row Mods (all balanced, 280ms tapping-term, 175ms quick-tap, 150ms require-prior-idle)
+### Home Row Mods (all balanced, hold-trigger-on-release)
 
-- `hml`/`hmr`: left/right hand hold-tap (`&kp`, `&kp`)
-- `hmlt`/`hmrt`: left/right thumb variants
+- `hml`/`hmr`: left/right hand (280ms tapping-term, 150ms prior-idle)
+- `hmls`/`hmrs`: left/right shift-specific (200ms tapping-term, 100ms prior-idle — faster for capitals)
+- `hmlt`/`hmrt`: left/right thumb variants (280ms)
 - `ltl`/`ltr`: left/right layer-tap (`&mo`, `&kp`)
 - `ltlt`/`ltrt`: left/right thumb layer-tap variants
 

@@ -14,13 +14,11 @@ Shared ZMK module providing common behaviors, macros, and configuration for all 
 
 ## Keyboards
 
-| Keyboard | Keys | Board | ZMK Source | Layers |
+| Keyboard | Keys | Board | ZMK Source | OS Switching |
 |---|---|---|---|---|
-| Corne42 | 42 (3x6+3) | Nice!Nano v2 | upstream `main` | 5: BASE, DEVLEFT, NPAD, SYSTEM, NAV |
-| Glove80 | 80 | Built-in (glove80_lh/rh) | MoErgo fork `main` | 7: all |
-| Piantor Pro BT | 42 (3x6+3) | Custom board defs | upstream `v0.3` | 7: all |
-
-Piantor also builds firmware for Corne Choc Pro and Sofle Choc Pro (same keymap, different boards).
+| Corne42 | 42 (3x6+3) | Nice!Nano v2 | upstream `main` | Runtime (conditional layers) |
+| Glove80 | 80 | Built-in (glove80_lh/rh) | MoErgo fork `main` | Compile-time (shelved) |
+| Piantor Pro BT | 42 (3x6+3) | Custom board defs | upstream `v0.3` | Runtime (conditional layers) |
 
 ## Shared Behaviors
 
@@ -44,14 +42,16 @@ All defined in `dts/shared_behaviors.dtsi` and available to every keyboard via `
 
 ### Home Row Mods
 
-All use balanced flavor, 280ms tapping-term, 175ms quick-tap, 150ms require-prior-idle, hold-trigger-on-release.
+All use balanced flavor, hold-trigger-on-release. Standard mods use 280ms tapping-term, 175ms quick-tap, 150ms require-prior-idle. Shift-specific variants use faster timing (200ms/175ms/100ms).
 
-| Behavior | Hand | Bindings | Trigger Keys |
+| Behavior | Hand | Timing | Trigger Keys |
 |---|---|---|---|
-| `hml` | Left | `&kp`, `&kp` | Right keys + all thumbs |
-| `hmr` | Right | `&kp`, `&kp` | Left keys + all thumbs |
-| `hmlt` | Left thumb | `&kp`, `&kp` | Right keys + right thumbs |
-| `hmrt` | Right thumb | `&kp`, `&kp` | Left keys + left thumbs |
+| `hml` | Left | Standard (280ms) | Right keys + all thumbs |
+| `hmr` | Right | Standard (280ms) | Left keys + all thumbs |
+| `hmls` | Left (shift) | Fast (200ms) | Right keys + all thumbs |
+| `hmrs` | Right (shift) | Fast (200ms) | Left keys + all thumbs |
+| `hmlt` | Left thumb | Standard (280ms) | Right keys + right thumbs |
+| `hmrt` | Right thumb | Standard (280ms) | Left keys + left thumbs |
 
 ### Layer-Tap (same timing as HRM)
 
@@ -70,17 +70,21 @@ All use balanced flavor, 280ms tapping-term, 175ms quick-tap, 150ms require-prio
 
 ## Layer Architecture
 
-Layers are numbered 0-6. Not all keyboards use every layer.
+Layers are numbered 0-8. Glove80 may not use all layers.
 
 | # | Layer | Description |
 |---|---|---|
-| 0 | BASE | QWERTY + home row mods + combos for brackets/symbols |
-| 1 | DEVLEFT | Programming symbols (left hand active, right hand blank) |
-| 2 | DEVRIGHT | Programming symbols (right hand active, left hand nav) |
-| 3 | NPAD | Number pad (right) + nav/media (left) |
-| 4 | SYSTEM | Bluetooth, bootloader, media, RGB |
-| 5 | MOUSE | Mouse movement, scroll, clicks |
-| 6 | NAV | Arrow keys + F-keys + sticky modifiers |
+| 0 | BASE | QWERTY + home row mods (GASC) + combos for brackets/symbols |
+| 1 | COLEMAK | Colemak-DH, toggled via inner thumb combo |
+| 2 | DEVLEFT | Programming symbols (left hand) |
+| 3 | NPAD | Number pad (right) + navigation (left) |
+| 4 | SYSTEM | Bluetooth, media, bootloader, RGB, OS toggle |
+| 5 | NAV | Arrow keys + F1-F12 + sticky modifiers |
+| 6 | WM | Window manager (Linux: Super+key, macOS: see WM_MAC) |
+| 7 | OS_MAC | Ghost flag layer (all &trans) — toggles macOS mode |
+| 8 | WM_MAC | macOS WM override (Alt+key) — conditional on WM + OS_MAC |
+
+WM layer right side: top row = move, home row = focus, bottom row = join/group. LSHIFT on bottom row for move-to-workspace. Ungroup/flatten on right outer pinky.
 
 ## Build System
 
