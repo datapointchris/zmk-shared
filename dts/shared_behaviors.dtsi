@@ -18,9 +18,11 @@
 #ifdef OS_MACOS
 #define WMK(key)  LA(key)
 #define WMSK(key) LA(LS(key))
+#define WMCK(key) LA(LC(key))
 #else
 #define WMK(key)  LG(key)
 #define WMSK(key) LG(LS(key))
+#define WMCK(key) LG(LC(key))
 #endif
 
 / {

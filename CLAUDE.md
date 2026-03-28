@@ -44,8 +44,9 @@ Keymaps use actual keycodes directly (e.g., `&hml LGUI A`), not MOD_* defines.
 
 ### WM Macros
 
-- `WMK(key)` — sends Alt+key on macOS, Super+key on Linux
-- `WMSK(key)` — sends Alt+Shift+key on macOS, Super+Shift+key on Linux
+- `WMK(key)` — sends Alt+key on macOS, Super+key on Linux (focus, workspaces)
+- `WMSK(key)` — sends Alt+Shift+key on macOS, Super+Shift+key on Linux (move windows)
+- `WMCK(key)` — sends Alt+Ctrl+key on macOS, Super+Ctrl+key on Linux (join/group windows)
 
 Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer define.
 
