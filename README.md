@@ -33,7 +33,6 @@ All defined in `dts/shared_behaviors.dtsi` and available to every keyboard via `
 | `HYPER` | Ctrl+Shift+GUI+Alt | Window manager |
 | `MEH` | Ctrl+Shift+Alt | Shortcuts |
 | `SUPER` | Ctrl+GUI+Alt | Shortcuts |
-| `AERO` | Ctrl+Shift+Alt+; | AeroSpace WM trigger |
 
 ### Bluetooth
 
@@ -68,7 +67,6 @@ All use balanced flavor, 280ms tapping-term, 175ms quick-tap, 150ms require-prio
 | Behavior | Tap | Double-tap |
 |---|---|---|
 | `caps_shift` | Right Shift | Caps Word |
-| `caps_aero` | AERO modifier | Caps Word |
 
 ## Layer Architecture
 

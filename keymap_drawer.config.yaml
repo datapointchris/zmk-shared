@@ -19,7 +19,6 @@ parse_config:
     "&bt_1": "BT 1"
     "&bt_2": "BT 2"
     "&bt_3": "BT 3"
-    "&caps_aero": "Aero/Caps"
 
   # Define layer names if display-name doesn't work
   layer_names:

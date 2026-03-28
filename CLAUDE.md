@@ -26,7 +26,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 ### Layer Defines
 ```text
-BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6
+BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC=7, WM_MAC=8
 ```
 
 ### Home Row Mod Order (GASC)
@@ -50,17 +50,21 @@ Keymaps use actual keycodes directly (e.g., `&hml LGUI A`), not MOD_* defines.
 
 Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer define.
 
-### OS Build Configuration
+### OS Switching
 
-The `OS_MACOS` define only affects `WMK()`/`WMSK()` macros (AeroSpace vs i3/sway shortcuts). Home row mods are identical on both OSes. To build for macOS, add `cmake-args: -DDTS_EXTRA_CPPFLAGS=-DOS_MACOS` to `build.yaml`. Both variants can coexist in the same `build.yaml` with different `artifact-name` values.
+Runtime OS switching via conditional layers (no separate macOS/Linux firmware builds needed):
+- `OS_MAC` (layer 7): ghost flag layer (all `&trans`), toggled via `&tog OS_MAC` on SYSTEM layer
+- `WM_MAC` (layer 8): macOS WM bindings using `LA()` instead of `LG()`
+- Conditional layer: when WM + OS_MAC are both active, WM_MAC auto-activates on top
+- Default is Linux (Super+key). Toggle OS_MAC for macOS (Alt+key)
+
+Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still supported via the `#ifdef` macros for keyboards that haven't migrated (e.g., Glove80).
 
 ### Modifier Macros
 
 - `HYPER` = Ctrl+Shift+GUI+Alt
 - `MEH` = Ctrl+Shift+Alt
 - `SUPER` = Ctrl+GUI+Alt
-- `AERO` = Ctrl+Shift+Alt+; (AeroSpace window manager)
-
 ### Bluetooth
 
 - `bt_0`..`bt_3`: tap-dance (tap=select BLE profile, double-tap=disconnect)
@@ -77,7 +81,6 @@ The `OS_MACOS` define only affects `WMK()`/`WMSK()` macros (AeroSpace vs i3/sway
 ### Tap-Dance
 
 - `caps_shift`: tap=RShift, double-tap=Caps Word
-- `caps_aero`: tap=AERO, double-tap=Caps Word
 
 ### Colemak-DH Layer
 

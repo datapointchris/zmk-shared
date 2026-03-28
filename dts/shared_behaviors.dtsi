@@ -2,7 +2,6 @@
 #define HYPER LC(LS(LG(LALT)))
 #define MEH LC(LS(LALT))
 #define SUPER LC(LG(LALT))
-#define AERO LC(LS(LA(SEMI)))
 
 #define QUICK_TAP_MS 175
 
@@ -13,6 +12,8 @@
 #define SYSTEM 4
 #define NAV 5
 #define WM 6
+#define OS_MAC_LAYER 7
+#define WM_MAC_LAYER 8
 
 /* OS-conditional window manager macros (AeroSpace=Alt, i3/sway=Super) */
 #ifdef OS_MACOS
@@ -182,11 +183,5 @@
             bindings = <&kp RSHIFT>, <&caps_word>;
         };
 
-        caps_aero: caps_word_aerospace_mod_tap_dance {
-            compatible = "zmk,behavior-tap-dance";
-            #binding-cells = <0>;
-            tapping-term-ms = <280>;
-            bindings = <&kp AERO>, <&caps_word>;
-        };
     };
 };
