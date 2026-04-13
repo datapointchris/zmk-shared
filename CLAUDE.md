@@ -103,9 +103,10 @@ All keyboard repos use the same tools and Make targets:
 
 When changing shared behaviors:
 1. Edit `dts/shared_behaviors.dtsi`
-2. Test in ONE keyboard repo first: `cd ~/code/zmk/corne42 && make build`
-3. Then rebuild others: `cd ~/code/zmk/glove80 && make build`, etc.
-4. Each keyboard's west.yml pulls `zmk-shared@main`, so changes are picked up on next `make build`
+2. **Push to GitHub first** — keyboard repos pull `datapointchris/zmk-shared@main` from GitHub, NOT from the local filesystem. Local changes are invisible until pushed.
+3. Update the build workspace after pushing: `git -C ~/.local/share/zmk/{keyboard}/zmk-shared pull datapointchris main` (or delete the workspace — `zmk-build --pristine` does NOT re-pull west modules)
+4. Test in ONE keyboard repo first: `cd ~/code/zmk/corne42 && make build`
+5. Then rebuild others: `cd ~/code/zmk/glove80 && make build`, etc.
 
 ## Guardrails
 
