@@ -123,8 +123,10 @@ Local edits take effect immediately — `zmk-build` bind-mounts this directory i
 
 ## Guardrails
 
+- **Rebuild firmware after every keymap change** — run `make sync` (align + draw + build) before committing. Source changes without a build are useless; the UF2 file is what gets flashed. Applies to every board.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
 - Layer defines are shared — all keyboards use all 7 layers
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
 - Keymap YAML files show GASC modifier labels: GUI, Alt, Shift, Ctrl (same on both OSes)
+- **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode; Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr`. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so neither applies there.
