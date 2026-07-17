@@ -2,15 +2,15 @@ parse_config:
   # Custom behaviors and their display forms
   # keymap-drawer will automatically parse custom behaviors if they are properly defined
   # in your .dtsi files, but we can provide hints about special ones
-  
+
   # Sticky label for one-shot/sticky keys
   sticky_label: "⏱"
-  
+
   # Transparent key styling - use just "▽" in YAML
   trans_legend:
     t: "▽"
     type: trans
-  
+
   # Simple mappings for tap-dance behaviors
   raw_binding_map:
     # Shorthand aliases for common keys
@@ -37,13 +37,13 @@ draw_config:
   split_gap: 30
   combo_w: 40
   combo_h: 36
-  
+
   # Font sizes
   inner_pad_w: 2
   inner_pad_h: 2
   outer_pad_w: 20
   outer_pad_h: 20
-  
+
   # Legend sizes
   glyph_tap_size: 15
   glyph_hold_size: 14

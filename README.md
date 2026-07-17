@@ -15,7 +15,7 @@ Shared ZMK module providing common behaviors, macros, and configuration for all 
 ## Keyboards
 
 | Keyboard | Keys | Board | ZMK Source | OS Switching |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Corne42 | 42 (3x6+3) | Nice!Nano v2 | upstream `main` | Runtime (conditional layers) |
 | Glove80 | 80 | Built-in (glove80_lh/rh) | MoErgo fork `main` | Compile-time (shelved) |
 | Piantor Pro BT | 42 (3x6+3) | Custom board defs | upstream `v0.3` | Runtime (conditional layers) |
@@ -27,7 +27,7 @@ All defined in `dts/shared_behaviors.dtsi` and available to every keyboard via `
 ### Modifier Macros
 
 | Define | Keys | Usage |
-|---|---|---|
+| --- | --- | --- |
 | `HYPER` | Ctrl+Shift+GUI+Alt | Window manager |
 | `MEH` | Ctrl+Shift+Alt | Shortcuts |
 | `SUPER` | Ctrl+GUI+Alt | Shortcuts |
@@ -35,7 +35,7 @@ All defined in `dts/shared_behaviors.dtsi` and available to every keyboard via `
 ### Bluetooth
 
 | Behavior | Description |
-|---|---|
+| --- | --- |
 | `bt_0`..`bt_3` | Tap-dance: tap = select + BLE output, double-tap = disconnect |
 | `bt_select_0`..`bt_select_3` | Macros: switch to BLE output + select profile |
 | `ctrlaltdel` | Macro: Ctrl+Alt+Del |
@@ -45,7 +45,7 @@ All defined in `dts/shared_behaviors.dtsi` and available to every keyboard via `
 All use balanced flavor, hold-trigger-on-release. Standard mods use 280ms tapping-term, 175ms quick-tap, 150ms require-prior-idle. Shift-specific variants use faster timing (200ms/175ms/100ms).
 
 | Behavior | Hand | Timing | Trigger Keys |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `hml` | Left | Standard (280ms) | Right keys + all thumbs |
 | `hmr` | Right | Standard (280ms) | Left keys + all thumbs |
 | `hmls` | Left (shift) | Fast (200ms) | Right keys + all thumbs |
@@ -56,7 +56,7 @@ All use balanced flavor, hold-trigger-on-release. Standard mods use 280ms tappin
 ### Layer-Tap (same timing as HRM)
 
 | Behavior | Hand | Bindings | Trigger Keys |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `ltl` | Left | `&mo`, `&kp` | Right keys + all thumbs |
 | `ltr` | Right | `&mo`, `&kp` | Left keys + all thumbs |
 | `ltlt` | Left thumb | `&mo`, `&kp` | Right keys + right thumbs |
@@ -65,7 +65,7 @@ All use balanced flavor, hold-trigger-on-release. Standard mods use 280ms tappin
 ### Tap-Dance
 
 | Behavior | Tap | Double-tap |
-|---|---|---|
+| --- | --- | --- |
 | `caps_shift` | Right Shift | Caps Word |
 
 ## Layer Architecture
@@ -73,7 +73,7 @@ All use balanced flavor, hold-trigger-on-release. Standard mods use 280ms tappin
 Layers are numbered 0-8. Glove80 may not use all layers.
 
 | # | Layer | Description |
-|---|---|---|
+| --- | --- | --- |
 | 0 | BASE | QWERTY + home row mods (GASC) + combos for brackets/symbols |
 | 1 | COLEMAK | Colemak-DH, toggled via inner thumb combo |
 | 2 | DEVLEFT | Programming symbols (left hand) |
@@ -91,7 +91,7 @@ WM layer right side: top row = move, home row = focus, bottom row = join/group. 
 Each keyboard repo uses the same toolchain via Make:
 
 | Tool | Purpose | Install |
-|---|---|---|
+| --- | --- | --- |
 | `zmk-build` | Docker-based west build | Shared tool |
 | `keymap-align` | Align keymap .dtsi columns | Shared tool |
 | `keymap` (keymap-drawer) | Generate SVG from YAML | `pipx install keymap-drawer` |

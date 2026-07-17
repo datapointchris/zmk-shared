@@ -17,7 +17,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 ## Key Files
 
 | File | Purpose |
-|---|---|
+| --- | --- |
 | `dts/shared_behaviors.dtsi` | All shared behaviors, macros, layer defines, WM macros |
 | `zephyr/module.yml` | Zephyr module registration (DTS root) |
 | `keymap_drawer.config.yaml` | Shared keymap-drawer styling config |
@@ -25,6 +25,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 ## Shared Behaviors Reference
 
 ### Layer Defines
+
 ```text
 BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC=7, WM_MAC=8
 ```
@@ -34,7 +35,7 @@ BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC=7, WM_MAC=8
 All keyboards use a unified GASC order — the same keycodes on both OSes:
 
 | Finger | Modifier (Left) | Modifier (Right) |
-|--------|-----------------|-------------------|
+| -------- | ----------------- | ------------------- |
 | Pinky (A/;) | LGUI | RGUI |
 | Ring (S/L) | LALT | RALT |
 | Middle (D/K) | LSHIFT | RSHIFT |
@@ -53,6 +54,7 @@ Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer
 ### OS Switching
 
 Runtime OS switching via conditional layers (no separate macOS/Linux firmware builds needed):
+
 - `OS_MAC` (layer 7): ghost flag layer (all `&trans`), toggled via `&tog OS_MAC` on SYSTEM layer
 - `WM_MAC` (layer 8): macOS WM bindings using `LA()` instead of `LG()`
 - Conditional layer: when WM + OS_MAC are both active, WM_MAC auto-activates on top
@@ -65,6 +67,7 @@ Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still suppo
 - `HYPER` = Ctrl+Shift+GUI+Alt
 - `MEH` = Ctrl+Shift+Alt
 - `SUPER` = Ctrl+GUI+Alt
+
 ### Bluetooth
 
 - `bt_0`..`bt_3`: tap-dance (tap=select BLE profile, double-tap=disconnect)
@@ -94,6 +97,7 @@ Activated by holding left outermost thumb (`&mo WM`). Sends OS-appropriate WM ke
 ## Build Tools
 
 All keyboard repos use the same tools and Make targets:
+
 - `zmk-build`: Docker-based west build
 - `keymap-align`: column alignment for .keymap files
 - `keymap` (keymap-drawer): YAML → SVG keymap visualization
@@ -102,11 +106,20 @@ All keyboard repos use the same tools and Make targets:
 ## Cross-Repo Workflow
 
 When changing shared behaviors:
+
 1. Edit `dts/shared_behaviors.dtsi`
 2. Test in ONE keyboard repo first: `cd ~/code/zmk/corne42 && make build`
 3. Then rebuild others: `cd ~/code/zmk/glove80 && make build`, etc.
 
 Local edits take effect immediately — `zmk-build` bind-mounts this directory into the Docker container via `ZMK_EXTRA_MODULES`. No push/pull cycle needed.
+
+## Build Pitfalls
+
+**`ZEPHYR_EXTRA_MODULES` vs `ZMK_EXTRA_MODULES`** (⚠️ CRITICAL): Never pass `-DZEPHYR_EXTRA_MODULES` from the command line — ZMK uses this variable internally to register its own modules (board definitions like `nice_nano`). A CLI `-D` flag overrides `set()` in CMakeLists, clobbering ZMK's module list and causing "Invalid BOARD" / "No board named 'nice_nano' found" errors. Always use `-DZMK_EXTRA_MODULES` instead — ZMK prepends this to its own list.
+
+**CMake cache poisoning**: A bad `-D` flag persists in `CMakeCache.txt` even after fixing the script. After changing any CMake flags, the next build MUST use `--pristine` to clear the cache. `--pristine` only wipes the build directory — it does NOT re-download the west workspace, so it's fast. `--clean` destroys the entire west workspace (~5-10 min re-download) and is almost never the right fix for board errors.
+
+**Shared module is local, not a west dependency**: `zmk-build` bind-mounts `~/code/zmk/shared/` into the Docker container directly via `-DZMK_EXTRA_MODULES`. It is **not** in `west.yml` and not pulled from GitHub. Local edits take effect immediately — no push/pull cycle needed for shared behavior changes.
 
 ## Guardrails
 

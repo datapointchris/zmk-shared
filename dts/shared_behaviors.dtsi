@@ -163,7 +163,7 @@
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
             bindings = <&mo>, <&kp>;
         };
-            
+
         ltlt: layer_tap_left_thumb {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
@@ -199,7 +199,7 @@
             hold-trigger-key-positions = <KEYS_L THUMBS_L>; // Left hand keys + left thumbs
             bindings = <&mo>, <&kp>;
         };
-        
+
         caps_shift: caps_word_shift_tap_dance {
             compatible = "zmk,behavior-tap-dance";
             #binding-cells = <0>;
