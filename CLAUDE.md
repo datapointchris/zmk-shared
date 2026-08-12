@@ -27,7 +27,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 ### Layer Defines
 
 ```text
-BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC=7, WM_MAC=8
+BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC_LAYER=7, WM_MAC_LAYER=8
 ```
 
 ### Home Row Mod Order (GASC)
@@ -55,10 +55,13 @@ Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer
 
 Runtime OS switching via conditional layers (no separate macOS/Linux firmware builds needed):
 
-- `OS_MAC` (layer 7): ghost flag layer (all `&trans`), toggled via `&tog OS_MAC` on SYSTEM layer
-- `WM_MAC` (layer 8): macOS WM bindings using `LA()` instead of `LG()`
-- Conditional layer: when WM + OS_MAC are both active, WM_MAC auto-activates on top
-- Default is Linux (Super+key). Toggle OS_MAC for macOS (Alt+key)
+- `OS_MAC_LAYER` (layer 7): ghost flag layer (all `&trans`), toggled via `&tog OS_MAC_LAYER` on SYSTEM layer
+- `WM_MAC_LAYER` (layer 8): macOS WM bindings using `LA()` instead of `LG()`
+- Conditional layer: when WM + OS_MAC_LAYER are both active, WM_MAC_LAYER auto-activates on top
+- Default is Linux (Super+key). Toggle OS_MAC_LAYER for macOS (Alt+key)
+
+The `_LAYER` suffix is not decoration — `WM` is already a layer define, so the macOS layers cannot
+take the bare names. Writing `&tog OS_MAC` does not compile.
 
 Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still supported via the `#ifdef` macros for keyboards that haven't migrated (e.g., Glove80).
 
@@ -92,7 +95,7 @@ Toggle via combo: press both innermost thumbs (pos 38+39) simultaneously. Only r
 
 ### WM Layer
 
-Activated by holding left outermost thumb (`&mo WM`). Sends OS-appropriate WM keycodes using `WM()` and `WMS()` macros. Uses QWERTY key positions so it works regardless of base layout.
+Activated by holding left outermost thumb (`&mo WM`). Sends OS-appropriate WM keycodes using the `WMK()`, `WMSK()` and `WMCK()` macros. Uses QWERTY key positions so it works regardless of base layout.
 
 ## Build Tools
 
@@ -119,14 +122,14 @@ Local edits take effect immediately — `zmk-build` bind-mounts this directory i
 
 **CMake cache poisoning**: A bad `-D` flag persists in `CMakeCache.txt` even after fixing the script. After changing any CMake flags, the next build MUST use `--pristine` to clear the cache. `--pristine` only wipes the build directory — it does NOT re-download the west workspace, so it's fast. `--clean` destroys the entire west workspace (~5-10 min re-download) and is almost never the right fix for board errors.
 
-**Shared module is local, not a west dependency**: `zmk-build` bind-mounts `~/code/zmk/shared/` into the Docker container directly via `-DZMK_EXTRA_MODULES`. It is **not** in `west.yml` and not pulled from GitHub. Local edits take effect immediately — no push/pull cycle needed for shared behavior changes.
+**The local checkout wins over the west manifest**: every board's `west.yml` declares `zmk-shared` from the `datapointchris` remote, but `zmk-build` bind-mounts `~/code/zmk/shared/` into the container via `-DZMK_EXTRA_MODULES`, which takes precedence. Local edits take effect immediately — no push/pull cycle for shared behavior changes. The manifest entry is what a build without the bind-mount would fall back to.
 
 ## Guardrails
 
 - **Rebuild firmware after every keymap change** — run `make sync` (align + draw + build) before committing. Source changes without a build are useless; the UF2 file is what gets flashed. Applies to every board.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- Layer defines are shared — all keyboards use all 7 layers
+- Layer defines are shared, but a board uses only what its keymap declares — corne42 and piantor carry all nine, glove80 the first seven. Count the layer blocks in a board's keymap rather than assuming.
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
 - Keymap YAML files show GASC modifier labels: GUI, Alt, Shift, Ctrl (same on both OSes)
 - **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode; Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr`. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so neither applies there.
