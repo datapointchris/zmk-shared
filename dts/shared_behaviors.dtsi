@@ -5,13 +5,6 @@
 
 #define QUICK_TAP_MS 175
 
-/* Layer defines are per-board, in each keyboard's own .keymap.
- * A layer's index is its block's position, so sharing one list forced every
- * board to lay its blocks out in the same order — a board with seven layers
- * could not have WM at index eight. Adding a layer to one keyboard then meant
- * editing all of them. The names are still the same everywhere; only the
- * numbering is local. */
-
 /* OS-conditional window manager macros (AeroSpace=Alt, i3/sway=Super) */
 #ifdef OS_MACOS
 #define WMK(key)  LA(key)
@@ -26,193 +19,263 @@
 / {
     macros {
         bt_select_0: bt_select_0 {
-            compatible = "zmk,behavior-macro";
+            compatible     = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&out OUT_BLE>, <&bt BT_SEL 0>;
+            bindings       = <&out OUT_BLE>, <&bt BT_SEL 0>;
         };
+
         bt_select_1: bt_select_1 {
-            compatible = "zmk,behavior-macro";
+            compatible     = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&out OUT_BLE>, <&bt BT_SEL 1>;
+            bindings       = <&out OUT_BLE>, <&bt BT_SEL 1>;
         };
+
         bt_select_2: bt_select_2 {
-            compatible = "zmk,behavior-macro";
+            compatible     = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&out OUT_BLE>, <&bt BT_SEL 2>;
+            bindings       = <&out OUT_BLE>, <&bt BT_SEL 2>;
         };
+
         bt_select_3: bt_select_3 {
-            compatible = "zmk,behavior-macro";
+            compatible     = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&out OUT_BLE>, <&bt BT_SEL 3>;
+            bindings       = <&out OUT_BLE>, <&bt BT_SEL 3>;
         };
+
         ctrlaltdel: ctrl_alt_delete {
-            compatible = "zmk,behavior-macro";
+            compatible     = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&kp LC(LA(DEL))>;
+            bindings       = <&kp LC(LA(DEL))>;
         };
 
         /* tmux prefix sequences. The prefix is Ctrl+Space; anything reachable
            as a plain chord is bound directly in the TMUX layer instead. */
-        tmux_split_v: tmux_split_v     { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp PIPE>;  };
-        tmux_split_h: tmux_split_h     { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp MINUS>; };
-        tmux_zoom: tmux_zoom           { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp Z>;     };
+        tmux_split_v: tmux_split_v {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp PIPE>;
+        };
 
-        tmux_newwin: tmux_newwin       { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp C>;     };
-        tmux_rename: tmux_rename       { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp COMMA>; };
-        tmux_win_left: tmux_win_left   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp LBRC>;  };
-        tmux_win_right: tmux_win_right { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp RBRC>;  };
-        tmux_finder: tmux_finder       { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp W>;     };
+        tmux_split_h: tmux_split_h {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp MINUS>;
+        };
 
-        tmux_ses_left: tmux_ses_left   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp LT>;    };
-        tmux_ses_right: tmux_ses_right { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp GT>;    };
-        tmux_picker: tmux_picker       { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp S>;     };
+        tmux_zoom: tmux_zoom {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp Z>;
+        };
 
-        tmux_copy: tmux_copy           { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp LBKT>;  };
+        tmux_newwin: tmux_newwin {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp C>;
+        };
+
+        tmux_rename: tmux_rename {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp COMMA>;
+        };
+
+        tmux_win_left: tmux_win_left {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp LBRC>;
+        };
+
+        tmux_win_right: tmux_win_right {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp RBRC>;
+        };
+
+        tmux_finder: tmux_finder {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp W>;
+        };
+
+        tmux_ses_left: tmux_ses_left {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp LT>;
+        };
+
+        tmux_ses_right: tmux_ses_right {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp GT>;
+        };
+
+        tmux_picker: tmux_picker {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp S>;
+        };
+
+        tmux_copy: tmux_copy {
+            compatible     = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings       = <&kp LC(SPACE)>, <&kp LBKT>;
+        };
     };
     behaviors {
         bt_0: bt_0 {
-            compatible = "zmk,behavior-tap-dance";
-            #binding-cells = <0>;
+            compatible      = "zmk,behavior-tap-dance";
+            #binding-cells  = <0>;
             tapping-term-ms = <200>;
-            bindings = <&bt_select_0>, <&bt BT_DISC 0>;
+            bindings        = <&bt_select_0>, <&bt BT_DISC 0>;
         };
+
         bt_1: bt_1 {
-            compatible = "zmk,behavior-tap-dance";
-            #binding-cells = <0>;
+            compatible      = "zmk,behavior-tap-dance";
+            #binding-cells  = <0>;
             tapping-term-ms = <200>;
-            bindings = <&bt_select_1>, <&bt BT_DISC 1>;
+            bindings        = <&bt_select_1>, <&bt BT_DISC 1>;
         };
+
         bt_2: bt_2 {
-            compatible = "zmk,behavior-tap-dance";
-            #binding-cells = <0>;
+            compatible      = "zmk,behavior-tap-dance";
+            #binding-cells  = <0>;
             tapping-term-ms = <200>;
-            bindings = <&bt_select_2>, <&bt BT_DISC 2>;
+            bindings        = <&bt_select_2>, <&bt BT_DISC 2>;
         };
+
         bt_3: bt_3 {
-            compatible = "zmk,behavior-tap-dance";
-            #binding-cells = <0>;
+            compatible      = "zmk,behavior-tap-dance";
+            #binding-cells  = <0>;
             tapping-term-ms = <200>;
-            bindings = <&bt_select_3>, <&bt BT_DISC 3>;
+            bindings        = <&bt_select_3>, <&bt BT_DISC 3>;
+        };
+
+        caps_shift: caps_word_shift_tap_dance {
+            compatible      = "zmk,behavior-tap-dance";
+            #binding-cells  = <0>;
+            tapping-term-ms = <280>;
+            bindings        = <&kp RSHIFT>, <&caps_word>;
         };
 
         hml: home_row_mod_left {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
-            bindings = <&kp>, <&kp>;
+            bindings                   = <&kp>, <&kp>;
         };
 
         hmls: home_row_mod_left_shift {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <200>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <100>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <200>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <100>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
-            bindings = <&kp>, <&kp>;
+            bindings                   = <&kp>, <&kp>;
         };
 
         hmlt: home_row_mod_left_thumb {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
-            hold-trigger-key-positions = <KEYS_R THUMBS_R>; // Right hand keys + right thumbs
-            bindings = <&kp>, <&kp>;
+            hold-trigger-key-positions = <KEYS_R THUMBS_R>;
+            bindings                   = <&kp>, <&kp>;
         };
 
         hmr: home_row_mod_right {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L THUMBS_R>;
-            bindings = <&kp>, <&kp>;
+            bindings                   = <&kp>, <&kp>;
         };
 
         hmrs: home_row_mod_right_shift {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <200>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <100>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <200>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <100>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L THUMBS_R>;
-            bindings = <&kp>, <&kp>;
+            bindings                   = <&kp>, <&kp>;
         };
 
         hmrt: home_row_mod_right_thumb {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
-            hold-trigger-key-positions = <KEYS_L THUMBS_L>; // Left hand keys + left thumbs
-            bindings = <&kp>, <&kp>;
+            hold-trigger-key-positions = <KEYS_L THUMBS_L>;
+            bindings                   = <&kp>, <&kp>;
         };
 
         ltl: layer_tap_left {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
-            bindings = <&mo>, <&kp>;
+            bindings                   = <&mo>, <&kp>;
         };
 
         ltlt: layer_tap_left_thumb {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
-            hold-trigger-key-positions = <KEYS_R THUMBS_R>; // Right hand keys + right thumbs
-            bindings = <&mo>, <&kp>;
+            hold-trigger-key-positions = <KEYS_R THUMBS_R>;
+            bindings                   = <&mo>, <&kp>;
         };
 
         ltr: layer_tap_right {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L THUMBS_R>;
-            bindings = <&mo>, <&kp>;
+            bindings                   = <&mo>, <&kp>;
         };
 
         ltrt: layer_tap_right_thumb {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
-            hold-trigger-key-positions = <KEYS_L THUMBS_L>; // Left hand keys + left thumbs
-            bindings = <&mo>, <&kp>;
+            hold-trigger-key-positions = <KEYS_L THUMBS_L>;
+            bindings                   = <&mo>, <&kp>;
         };
 
         /* Thumb layer-taps for a layer whose keys are on BOTH hands.
@@ -229,35 +292,27 @@
          * immediately with a letter.
          */
         ltltb: layer_tap_left_thumb_both {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
-            hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_R>; // Both hands, not its own thumbs
-            bindings = <&mo>, <&kp>;
+            hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_R>;
+            bindings                   = <&mo>, <&kp>;
         };
 
         ltrtb: layer_tap_right_thumb_both {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            compatible                 = "zmk,behavior-hold-tap";
+            #binding-cells             = <2>;
+            flavor                     = "balanced";
+            tapping-term-ms            = <280>;
+            quick-tap-ms               = <175>;
+            require-prior-idle-ms      = <150>;
             hold-trigger-on-release;
-            hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_L>; // Both hands, not its own thumbs
-            bindings = <&mo>, <&kp>;
+            hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_L>;
+            bindings                   = <&mo>, <&kp>;
         };
-
-        caps_shift: caps_word_shift_tap_dance {
-            compatible = "zmk,behavior-tap-dance";
-            #binding-cells = <0>;
-            tapping-term-ms = <280>;
-            bindings = <&kp RSHIFT>, <&caps_word>;
-        };
-
     };
 };
