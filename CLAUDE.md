@@ -18,7 +18,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 | File | Purpose |
 | --- | --- |
-| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, layer defines, WM macros |
+| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, WM macros — not layer defines |
 | `zephyr/module.yml` | Zephyr module registration (DTS root) |
 | `keymap_drawer.config.yaml` | Shared keymap-drawer styling config |
 
@@ -26,9 +26,11 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 
 ### Layer Defines
 
-```text
-BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC_LAYER=7, WM_MAC_LAYER=8, TMUX=9
-```
+Per-board, at the top of each keyboard's `.keymap`. A layer's index is its
+block's position in `keymap`, so one shared list forced every board into the
+same order — a seven-layer Glove80 could not have `WM` at index eight, and
+adding a layer to one keyboard meant editing all three. The names are identical
+everywhere; only the numbering is local.
 
 ### Home Row Mod Order (GASC)
 
@@ -55,8 +57,8 @@ Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer
 
 Runtime OS switching via conditional layers (no separate macOS/Linux firmware builds needed):
 
-- `OS_MAC_LAYER` (layer 7): ghost flag layer (all `&trans`), toggled via `&tog OS_MAC_LAYER` on SYSTEM layer
-- `WM_MAC_LAYER` (layer 8): macOS WM bindings using `LA()` instead of `LG()`
+- `OS_MAC_LAYER`: ghost flag layer (all `&trans`), toggled via `&tog OS_MAC_LAYER` on SYSTEM layer
+- `WM_MAC_LAYER`: macOS WM bindings using `LA()` instead of `LG()`. It must be numbered **above** both `WM` and `OS_MAC_LAYER`, since a conditional layer activates on top
 - Conditional layer: when WM + OS_MAC_LAYER are both active, WM_MAC_LAYER auto-activates on top
 - Default is Linux (Super+key). Toggle OS_MAC_LAYER for macOS (Alt+key)
 
@@ -91,6 +93,7 @@ and a macro fires once per press.
 - `hmlt`/`hmrt`: left/right thumb variants (280ms)
 - `ltl`/`ltr`: left/right layer-tap (`&mo`, `&kp`)
 - `ltlt`/`ltrt`: left/right thumb layer-tap variants
+- `ltltb`/`ltrtb`: thumb layer-taps for a layer whose keys are on **both** hands
 
 ### Tap-Dance
 
@@ -116,8 +119,10 @@ what each Makefile's three constants used to hold.
 
 `zmk draw` renders and does not parse. `keymap parse` cannot read these keymaps —
 the conditional-layers node holds layer defines rather than integers — so each
-`<stem>_keymap.yaml` is hand-written and a layer added to a keymap does not reach
-the drawing. `zmk check` compares the counts, and it is the only thing that does.
+`<stem>_keymap.yaml` is hand-written and a change to a keymap does not reach the
+drawing. `zmk check` is the only thing that catches it: it compares every cell by
+class, and checks that each `&mo`, layer-tap and `&magic` is labelled with the
+layer it opens and that the layer marks one of the keys reaching it.
 
 ## Cross-Repo Workflow
 
@@ -144,7 +149,8 @@ Local edits take effect immediately — `zmk` bind-mounts this directory into th
 - **Rebuild firmware after every keymap change** — run `zmk sync` (align + draw + build) before committing, then `zmk check`. Source changes without a build are useless; the UF2 file is what gets flashed. `check` is what catches the drawing falling behind, which `sync` alone does not. Applies to every board.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- Layer defines are shared, but a board uses only what its keymap declares — corne42 carries all ten, piantor the first nine, glove80 the first seven. Count the layer blocks in a board's keymap rather than assuming.
+- Each board declares its own layer indices and orders them how it likes. Count the layer blocks in that board's keymap rather than assuming.
+- **The gate decides what may be pressed FIRST, not just what resolves a hold.** A key outside `hold-trigger-key-positions` resolves the hold-tap as a *tap*. So a layer with modifiers on one hand and targets on the other cannot be entered by pressing the modifier first — it types the tap. That is what `ltltb`/`ltrtb` exist for.
 - **A layer's index comes from the order of its block in `keymap`, not from its define.** Append a new layer last or the define points somewhere else, and nothing errors — the layer just does the wrong thing.
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
 - Keymap YAML files show GASC modifier labels: GUI, Alt, Shift, Ctrl (same on both OSes)
