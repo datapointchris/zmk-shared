@@ -5,16 +5,12 @@
 
 #define QUICK_TAP_MS 175
 
-#define BASE 0
-#define COLEMAK 1
-#define DEVLEFT 2
-#define NPAD 3
-#define SYSTEM 4
-#define NAV 5
-#define WM 6
-#define OS_MAC_LAYER 7
-#define WM_MAC_LAYER 8
-#define TMUX 9
+/* Layer defines are per-board, in each keyboard's own .keymap.
+ * A layer's index is its block's position, so sharing one list forced every
+ * board to lay its blocks out in the same order — a board with seven layers
+ * could not have WM at index eight. Adding a layer to one keyboard then meant
+ * editing all of them. The names are still the same everywhere; only the
+ * numbering is local. */
 
 /* OS-conditional window manager macros (AeroSpace=Alt, i3/sway=Super) */
 #ifdef OS_MACOS
@@ -212,6 +208,43 @@
             require-prior-idle-ms = <150>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L>; // Left hand keys + left thumbs
+            bindings = <&mo>, <&kp>;
+        };
+
+        /* Thumb layer-taps for a layer whose keys are on BOTH hands.
+         *
+         * Every behavior above gates on the opposite hand, which is what stops a
+         * same-hand roll resolving as a hold. That gate also decides what may be
+         * pressed FIRST: a key outside the list resolves the hold-tap as a tap
+         * instead. So a layer holding modifiers on one hand and targets on the
+         * other cannot be reached by pressing the modifier first — it types the
+         * tap. These two gate on everything except their own thumb cluster.
+         *
+         * The cost is real: the tap can now roll into the layer with either
+         * hand, so put them on thumbs whose tap is not something you follow
+         * immediately with a letter.
+         */
+        ltltb: layer_tap_left_thumb_both {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <150>;
+            hold-trigger-on-release;
+            hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_R>; // Both hands, not its own thumbs
+            bindings = <&mo>, <&kp>;
+        };
+
+        ltrtb: layer_tap_right_thumb_both {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <150>;
+            hold-trigger-on-release;
+            hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_L>; // Both hands, not its own thumbs
             bindings = <&mo>, <&kp>;
         };
 
