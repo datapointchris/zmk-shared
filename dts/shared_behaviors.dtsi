@@ -14,6 +14,7 @@
 #define WM 6
 #define OS_MAC_LAYER 7
 #define WM_MAC_LAYER 8
+#define TMUX 9
 
 /* OS-conditional window manager macros (AeroSpace=Alt, i3/sway=Super) */
 #ifdef OS_MACOS
@@ -53,6 +54,20 @@
             #binding-cells = <0>;
             bindings = <&kp LC(LA(DEL))>;
         };
+
+        /* tmux prefix sequences. The prefix is Ctrl+Space; anything reachable
+           as a plain chord is bound directly in the TMUX layer instead. */
+        tmux_copy: tmux_copy       { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp LBKT>; };
+        tmux_newwin: tmux_newwin   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp C>; };
+        tmux_split_v: tmux_split_v { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp PIPE>; };
+        tmux_split_h: tmux_split_h { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp MINUS>; };
+        tmux_zoom: tmux_zoom       { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp Z>; };
+        tmux_picker: tmux_picker   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp S>; };
+        tmux_finder: tmux_finder   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp W>; };
+        tmux_win_left: tmux_win_left   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp LBRC>; };
+        tmux_win_right: tmux_win_right { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp RBRC>; };
+        tmux_ses_left: tmux_ses_left   { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp LT>; };
+        tmux_ses_right: tmux_ses_right { compatible = "zmk,behavior-macro"; #binding-cells = <0>; bindings = <&kp LC(SPACE)>, <&kp GT>; };
     };
     behaviors {
         bt_0: bt_0 {

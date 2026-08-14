@@ -27,7 +27,7 @@ When working on shared behaviors, check sibling repos under `~/code/zmk/` to und
 ### Layer Defines
 
 ```text
-BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC_LAYER=7, WM_MAC_LAYER=8
+BASE=0, COLEMAK=1, DEVLEFT=2, NPAD=3, SYSTEM=4, NAV=5, WM=6, OS_MAC_LAYER=7, WM_MAC_LAYER=8, TMUX=9
 ```
 
 ### Home Row Mod Order (GASC)
@@ -76,6 +76,13 @@ Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still suppo
 - `bt_0`..`bt_3`: tap-dance (tap=select BLE profile, double-tap=disconnect)
 - `bt_select_0`..`bt_select_3`: macros (switch output to BLE + select profile)
 - `ctrlaltdel`: Ctrl+Alt+Del macro
+
+### tmux Macros
+
+`tmux_*` macros send the prefix (Ctrl+Space) then one key, for the actions tmux
+only exposes through its prefix table. Anything reachable as a plain chord is
+bound directly in the TMUX layer instead, because a chord auto-repeats when held
+and a macro fires once per press.
 
 ### Home Row Mods (all balanced, hold-trigger-on-release)
 
@@ -129,7 +136,8 @@ Local edits take effect immediately — `zmk-build` bind-mounts this directory i
 - **Rebuild firmware after every keymap change** — run `make sync` (align + draw + build) before committing. Source changes without a build are useless; the UF2 file is what gets flashed. Applies to every board.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- Layer defines are shared, but a board uses only what its keymap declares — corne42 and piantor carry all nine, glove80 the first seven. Count the layer blocks in a board's keymap rather than assuming.
+- Layer defines are shared, but a board uses only what its keymap declares — corne42 carries all ten, piantor the first nine, glove80 the first seven. Count the layer blocks in a board's keymap rather than assuming.
+- **A layer's index comes from the order of its block in `keymap`, not from its define.** Append a new layer last or the define points somewhere else, and nothing errors — the layer just does the wrong thing.
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
 - Keymap YAML files show GASC modifier labels: GUI, Alt, Shift, Ctrl (same on both OSes)
 - **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode; Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr`. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so neither applies there.
