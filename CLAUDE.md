@@ -106,22 +106,30 @@ Activated by holding left outermost thumb (`&mo WM`). Sends OS-appropriate WM ke
 
 ## Build Tools
 
-All keyboard repos use the same tools and Make targets:
+All keyboard repos are driven by `zmk`, run from inside them. There is no
+Makefile — every derived path comes from the single `config/*.keymap`, which is
+what each Makefile's three constants used to hold.
 
-- `zmk-build`: Docker-based west build
-- `keymap-align`: column alignment for .keymap files
-- `keymap` (keymap-drawer): YAML → SVG keymap visualization
-- Make targets: `align`, `draw`, `build`, `sync` (all three), `clean`
+- `zmk`: `build`, `flash`, `align`, `draw`, `sync`, `check`, `clean`
+- `keymap-align`: column alignment for .keymap files, called by `zmk align`
+- `keymap` (keymap-drawer): YAML → SVG, called by `zmk draw`
+
+`zmk draw` renders and does not parse. `keymap parse` cannot read these keymaps —
+the conditional-layers node holds layer defines rather than integers — so each
+`<stem>_keymap.yaml` is hand-written and a layer added to a keymap does not reach
+the drawing. `zmk check` compares the counts, and it is the only thing that does.
 
 ## Cross-Repo Workflow
 
 When changing shared behaviors:
 
 1. Edit `dts/shared_behaviors.dtsi`
-2. Test in ONE keyboard repo first: `cd ~/code/zmk/corne42 && make build`
-3. Then rebuild others: `cd ~/code/zmk/glove80 && make build`, etc.
+2. Test in ONE keyboard repo first: `cd ~/code/zmk/corne42 && zmk build`
+3. Then rebuild others: `cd ~/code/zmk/glove80 && zmk build`, etc.
 
-Local edits take effect immediately — `zmk-build` bind-mounts this directory into the Docker container via `ZMK_EXTRA_MODULES`. No push/pull cycle needed.
+Local edits take effect immediately — `zmk` bind-mounts this directory into the Docker container via `ZMK_EXTRA_MODULES`. No push/pull cycle needed locally.
+
+**Push this repo before the board repo.** CI has no bind-mount and resolves the module through each board's `config/west.yml`, which declares it from GitHub at `main`. Pushing the board first makes its run compile against a `main` that lacks the change. This repo has no workflow of its own, so nothing validates it until a board pushes.
 
 ## Build Pitfalls
 
@@ -129,11 +137,11 @@ Local edits take effect immediately — `zmk-build` bind-mounts this directory i
 
 **CMake cache poisoning**: A bad `-D` flag persists in `CMakeCache.txt` even after fixing the script. After changing any CMake flags, the next build MUST use `--pristine` to clear the cache. `--pristine` only wipes the build directory — it does NOT re-download the west workspace, so it's fast. `--clean` destroys the entire west workspace (~5-10 min re-download) and is almost never the right fix for board errors.
 
-**The local checkout wins over the west manifest**: every board's `west.yml` declares `zmk-shared` from the `datapointchris` remote, but `zmk-build` bind-mounts `~/code/zmk/shared/` into the container via `-DZMK_EXTRA_MODULES`, which takes precedence. Local edits take effect immediately — no push/pull cycle for shared behavior changes. The manifest entry is what a build without the bind-mount would fall back to.
+**The local checkout wins over the west manifest**: every board's `west.yml` declares `zmk-shared` from the `datapointchris` remote, but `zmk` bind-mounts `~/code/zmk/shared/` into the container via `-DZMK_EXTRA_MODULES`, which takes precedence. Local edits take effect immediately — no push/pull cycle for shared behavior changes. The manifest entry is what a build without the bind-mount would fall back to.
 
 ## Guardrails
 
-- **Rebuild firmware after every keymap change** — run `make sync` (align + draw + build) before committing. Source changes without a build are useless; the UF2 file is what gets flashed. Applies to every board.
+- **Rebuild firmware after every keymap change** — run `zmk sync` (align + draw + build) before committing, then `zmk check`. Source changes without a build are useless; the UF2 file is what gets flashed. `check` is what catches the drawing falling behind, which `sync` alone does not. Applies to every board.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
 - Layer defines are shared, but a board uses only what its keymap declares — corne42 carries all ten, piantor the first nine, glove80 the first seven. Count the layer blocks in a board's keymap rather than assuming.

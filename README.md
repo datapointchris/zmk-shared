@@ -88,22 +88,22 @@ WM layer right side: top row = move, home row = focus, bottom row = join/group. 
 
 ## Build System
 
-Each keyboard repo uses the same toolchain via Make:
+Every keyboard repo is driven by the same tool, run from inside it:
 
 | Tool | Purpose | Install |
 | --- | --- | --- |
-| `zmk-build` | Docker-based west build | Shared tool |
+| `zmk` | Build, draw, check and flash | Shared tool |
 | `keymap-align` | Align keymap .dtsi columns | Shared tool |
-| `keymap` (keymap-drawer) | Generate SVG from YAML | `pipx install keymap-drawer` |
+| `keymap` (keymap-drawer) | Generate SVG from YAML | `uv tool install keymap-drawer` |
 
-### Make Targets (same in all keyboard repos)
+`zmk --help` is the command reference. There is no Makefile — every path a repo
+needs derives from its single `config/*.keymap`, which is what the three
+constants at the top of each Makefile used to hold.
 
 ```sh
-make align    # Align keymap formatting
-make draw     # Generate SVG visualization from YAML
-make build    # Build firmware via zmk-build (Docker)
-make sync     # align + draw + build
-make clean    # Remove .uf2 files
+zmk check     # what is missing or has drifted
+zmk sync      # align + draw + build
+zmk flash     # pick halves with fzf, then write each
 ```
 
 ## How It Works
@@ -123,10 +123,11 @@ The `zephyr/module.yml` registers the DTS root, making `shared_behaviors.dtsi` a
 
 1. Edit shared behavior in `dts/shared_behaviors.dtsi` (affects ALL keyboards)
 2. Or edit a specific keyboard's keymap in its repo
-3. Run `make align` to format the keymap
-4. Run `make draw` to regenerate the SVG
-5. Run `make build` to compile firmware
-6. Flash `.uf2` files to keyboard
+3. Update that keyboard's `<stem>_keymap.yaml` to match — it is hand-written,
+   because `keymap parse` cannot read these keymaps
+4. Run `zmk sync` to align, redraw and build
+5. Run `zmk check` to confirm the drawing did not fall behind the keymap
+6. Run `zmk flash` and double-tap reset on each half as it asks
 
 ## Files
 
