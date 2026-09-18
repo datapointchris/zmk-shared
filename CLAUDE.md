@@ -1,26 +1,8 @@
 # zmk-shared AI Context
 
-## Directory Layout
+This module is consumed by the board repos beside it under `~/code/zmk/`: corne42, glove80 and piantor. Check how they use a behavior before changing it.
 
-All ZMK keyboard repos live under `~/code/zmk/`:
-
-```text
-~/code/zmk/
-├── shared/     ← this repo
-├── corne42/    Corne42 config
-├── glove80/    Glove80 config
-└── piantor/    Piantor Pro BT config
-```
-
-When working on shared behaviors, check sibling repos under `~/code/zmk/` to understand how they're used.
-
-## Key Files
-
-| File | Purpose |
-| --- | --- |
-| `dts/shared_behaviors.dtsi` | All shared behaviors, macros, WM macros — not layer defines |
-| `zephyr/module.yml` | Zephyr module registration (DTS root) |
-| `keymap_drawer.config.yaml` | Shared keymap-drawer styling config |
+`dts/shared_behaviors.dtsi` defines every shared behavior and macro, with its timings. Read values there, not here.
 
 ## Shared Behaviors Reference
 
@@ -34,16 +16,9 @@ everywhere; only the numbering is local.
 
 ### Home Row Mod Order (GASC)
 
-All keyboards use a unified GASC order — the same keycodes on both OSes:
+Pinky GUI, ring Alt, middle Shift, index Ctrl, mirrored on the right hand. The keycodes are the same on both OSes, and so are the drawer labels.
 
-| Finger | Modifier (Left) | Modifier (Right) |
-| -------- | ----------------- | ------------------- |
-| Pinky (A/;) | LGUI | RGUI |
-| Ring (S/L) | LALT | RALT |
-| Middle (D/K) | LSHIFT | RSHIFT |
-| Index (F/J) | LCTRL | RCTRL |
-
-Keymaps use actual keycodes directly (e.g., `&hml LGUI A`), not MOD_* defines.
+Keymaps use real keycodes directly (e.g., `&hml LGUI A`), not `MOD_*` defines.
 
 ### WM Macros
 
@@ -67,18 +42,6 @@ take the bare names. Writing `&tog OS_MAC` does not compile.
 
 Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still supported via the `#ifdef` macros for keyboards that haven't migrated (e.g., Glove80).
 
-### Modifier Macros
-
-- `HYPER` = Ctrl+Shift+GUI+Alt
-- `MEH` = Ctrl+Shift+Alt
-- `SUPER` = Ctrl+GUI+Alt
-
-### Bluetooth
-
-- `bt_0`..`bt_3`: tap-dance (tap=select BLE profile, double-tap=disconnect)
-- `bt_select_0`..`bt_select_3`: macros (switch output to BLE + select profile)
-- `ctrlaltdel`: Ctrl+Alt+Del macro
-
 ### tmux Macros
 
 `tmux_*` macros send the prefix (Ctrl+Space) then one key, for the actions tmux
@@ -86,36 +49,15 @@ only exposes through its prefix table. Anything reachable as a plain chord is
 bound directly in the TMUX layer instead, because a chord auto-repeats when held
 and a macro fires once per press.
 
-### Home Row Mods (all balanced, hold-trigger-on-release)
+### Colemak-DH and WM Layers
 
-- `hml`/`hmr`: left/right hand (280ms tapping-term, 150ms prior-idle)
-- `hmls`/`hmrs`: left/right shift-specific (200ms tapping-term, 100ms prior-idle — faster for capitals)
-- `hmlt`/`hmrt`: left/right thumb variants (280ms)
-- `ltl`/`ltr`: left/right layer-tap (`&mo`, `&kp`)
-- `ltlt`/`ltrt`: left/right thumb layer-tap variants
-- `ltltb`/`ltrtb`: thumb layer-taps for a layer whose keys are on **both** hands
+Colemak-DH toggles with a combo on the two inner thumbs, active on BASE and COLEMAK. It redefines only the letters and HRM letters; everything else is `&trans` and falls through to BASE.
 
-### Tap-Dance
-
-- `caps_shift`: tap=RShift, double-tap=Caps Word
-
-### Colemak-DH Layer
-
-Toggle via combo: press both innermost thumbs (pos 38+39) simultaneously. Only redefines letter keys and HRM letters; everything else is `&trans` (falls through to BASE). Active on both BASE and COLEMAK layers.
-
-### WM Layer
-
-Activated by holding left outermost thumb (`&mo WM`). Sends OS-appropriate WM keycodes using the `WMK()`, `WMSK()` and `WMCK()` macros. Uses QWERTY key positions so it works regardless of base layout.
+WM is held on the left outermost thumb (`&mo WM`) and sends through `WMK()`, `WMSK()` and `WMCK()`. It uses QWERTY positions, so it works under either base layout.
 
 ## Build Tools
 
-All keyboard repos are driven by `zmk`, run from inside them. There is no
-Makefile — every derived path comes from the single `config/*.keymap`, which is
-what each Makefile's three constants used to hold.
-
-- `zmk`: `build`, `flash`, `align`, `draw`, `sync`, `check`, `clean`
-- `keymap-align`: column alignment for .keymap files, called by `zmk align`
-- `keymap` (keymap-drawer): YAML → SVG, called by `zmk draw`
+Every board repo is driven by `zmk`, run from inside it. There is no Makefile. Every derived path comes from the single `config/*.keymap`.
 
 `zmk draw` renders and does not parse. `keymap parse` cannot read these keymaps —
 the conditional-layers node holds layer defines rather than integers — so each
@@ -140,18 +82,16 @@ Local edits take effect immediately — `zmk` bind-mounts this directory into th
 
 **`ZEPHYR_EXTRA_MODULES` vs `ZMK_EXTRA_MODULES`** (⚠️ CRITICAL): Never pass `-DZEPHYR_EXTRA_MODULES` from the command line — ZMK uses this variable internally to register its own modules (board definitions like `nice_nano`). A CLI `-D` flag overrides `set()` in CMakeLists, clobbering ZMK's module list and causing "Invalid BOARD" / "No board named 'nice_nano' found" errors. Always use `-DZMK_EXTRA_MODULES` instead — ZMK prepends this to its own list.
 
-**CMake cache poisoning**: A bad `-D` flag persists in `CMakeCache.txt` even after fixing the script. After changing any CMake flags, the next build MUST use `--pristine` to clear the cache. `--pristine` only wipes the build directory — it does NOT re-download the west workspace, so it's fast. `--clean` destroys the entire west workspace (~5-10 min re-download) and is almost never the right fix for board errors.
-
-**The local checkout wins over the west manifest**: every board's `west.yml` declares `zmk-shared` from the `datapointchris` remote, but `zmk` bind-mounts `~/code/zmk/shared/` into the container via `-DZMK_EXTRA_MODULES`, which takes precedence. Local edits take effect immediately — no push/pull cycle for shared behavior changes. The manifest entry is what a build without the bind-mount would fall back to.
+**CMake cache poisoning**: A bad `-D` flag persists in `CMakeCache.txt` even after fixing the script. After changing any CMake flags, the next build MUST be `zmk build --pristine` to clear the cache. `--pristine` only wipes the build directory — it does NOT re-download the west workspace, so it's fast. `zmk clean` destroys the board's entire west workspace (~5-10 min re-download) and is almost never the right fix for board errors.
 
 ## Guardrails
 
-- **Rebuild firmware after every keymap change** — run `zmk sync` (align + draw + build) before committing, then `zmk check`. Source changes without a build are useless; the UF2 file is what gets flashed. `check` is what catches the drawing falling behind, which `sync` alone does not. Applies to every board.
+These apply in every board repo. Each board's own CLAUDE.md adds only what differs there.
+
+- **Rebuild firmware after every keymap change** — run `zmk sync` (align + draw + build) before committing, then `zmk check`. Source changes without a build are useless; the UF2 file is what gets flashed. `check` is what catches the drawing falling behind, which `sync` alone does not.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- Each board declares its own layer indices and orders them how it likes. Count the layer blocks in that board's keymap rather than assuming.
 - **The gate decides what may be pressed FIRST, not just what resolves a hold.** A key outside `hold-trigger-key-positions` resolves the hold-tap as a *tap*. So a layer with modifiers on one hand and targets on the other cannot be entered by pressing the modifier first — it types the tap. That is what `ltltb`/`ltrtb` exist for.
-- **A layer's index comes from the order of its block in `keymap`, not from its define.** Append a new layer last or the define points somewhere else, and nothing errors — the layer just does the wrong thing.
+- **A layer's index comes from the order of its block in `keymap`, not from its define.** Count the blocks in that board's keymap rather than assuming. Append a new layer last or the define points somewhere else, and nothing errors — the layer just does the wrong thing.
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
-- Keymap YAML files show GASC modifier labels: GUI, Alt, Shift, Ctrl (same on both OSes)
 - **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode; Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr`. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so neither applies there.
