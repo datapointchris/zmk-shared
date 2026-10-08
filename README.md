@@ -96,9 +96,8 @@ Every keyboard repo is driven by the same tool, run from inside it:
 | `keymap-align` | Align keymap .dtsi columns | Shared tool |
 | `keymap` (keymap-drawer) | Generate SVG from YAML | `uv tool install keymap-drawer` |
 
-`zmk --help` is the command reference. There is no Makefile — every path a repo
-needs derives from its single `config/*.keymap`, which is what the three
-constants at the top of each Makefile used to hold.
+`zmk --help` is the command reference. Every path a repo needs derives from its
+single `config/*.keymap`, so a board repo declares nothing else.
 
 ```sh
 zmk check     # what is missing or has drifted
