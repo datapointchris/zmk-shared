@@ -1,6 +1,6 @@
 # zmk-shared AI Context
 
-This module is consumed by the board repos beside it under `~/code/zmk/`: corne42, glove80 and piantor. Check how they use a behavior before changing it.
+This module is consumed by the board repos cloned beside it: `../corne42`, `../glove80` and `../piantor`. Check how they use a behavior before changing it.
 
 `dts/shared_behaviors.dtsi` defines every shared behavior and macro, with its timings. Read values there, not here.
 
@@ -59,10 +59,10 @@ WM is held on the left outermost thumb (`&mo WM`) and sends through `WMK()`, `WM
 
 Every board repo is driven by `zmk`, run from inside it. There is no Makefile. Every derived path comes from the single `config/*.keymap`.
 
-`zmk draw` renders and does not parse. `keymap parse` cannot read these keymaps —
-the conditional-layers node holds layer defines rather than integers — so each
-`<stem>_keymap.yaml` is hand-written and a change to a keymap does not reach the
-drawing. `zmk check` is the only thing that catches it: it compares every cell by
+`zmk draw` renders and does not parse. Each `<stem>_keymap.yaml` is hand-written.
+`keymap parse` reads these keymaps and exits 0, but it writes raw bindings such as
+`&tmux_zoom` where the drawing carries a legend such as `ZOOM`. So a change to a
+keymap does not reach the drawing. `zmk check` is the only thing that catches it: it compares every cell by
 class, and checks that each `&mo`, layer-tap and `&magic` is labelled with the
 layer it opens and that the layer marks one of the keys reaching it.
 
@@ -71,12 +71,12 @@ layer it opens and that the layer marks one of the keys reaching it.
 When changing shared behaviors:
 
 1. Edit `dts/shared_behaviors.dtsi`
-2. Test in ONE keyboard repo first: `cd ~/code/zmk/corne42 && zmk build`
-3. Then rebuild others: `cd ~/code/zmk/glove80 && zmk build`, etc.
+2. Test in ONE keyboard repo first: `cd ../corne42 && zmk build`
+3. Then rebuild others: `cd ../glove80 && zmk build`, etc.
 
 Local edits take effect immediately — `zmk` bind-mounts this directory into the Docker container via `ZMK_EXTRA_MODULES`. No push/pull cycle needed locally.
 
-**Push this repo before the board repo.** CI has no bind-mount and resolves the module through each board's `config/west.yml`, which declares it from GitHub at `main`. Pushing the board first makes its run compile against a `main` that lacks the change. This repo has no workflow of its own, so nothing validates it until a board pushes.
+**Push this repo before the board repo.** CI has no bind-mount and resolves the module through each board's `config/west.yml`, which declares it from GitHub at `main`. Pushing the board first makes its run compile against a `main` that lacks the change. This repo's own workflow runs the lint hooks and compiles nothing, so no build checks a behavior change until a board builds it.
 
 ## Build Pitfalls
 
@@ -94,4 +94,5 @@ These apply in every board repo. Each board's own CLAUDE.md adds only what diffe
 - **The gate decides what may be pressed FIRST, not just what resolves a hold.** A key outside `hold-trigger-key-positions` resolves the hold-tap as a *tap*. So a layer with modifiers on one hand and targets on the other cannot be entered by pressing the modifier first — it types the tap. That is what `ltltb`/`ltrtb` exist for.
 - **A layer's index comes from the order of its block in `keymap`, not from its define.** Count the blocks in that board's keymap rather than assuming. Append a new layer last or the define points somewhere else, and nothing errors — the layer just does the wrong thing.
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
-- **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode; Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr`. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so neither applies there.
+- **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so this does not apply there.
+- Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr` on every board.
