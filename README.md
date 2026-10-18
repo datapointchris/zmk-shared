@@ -1,137 +1,221 @@
 # zmk-shared
 
-Shared ZMK module providing common behaviors, macros, and configuration for all keyboard repos.
+The ZMK behaviors that several keyboard configs share, packaged as one Zephyr module. A keymap
+includes `shared_behaviors.dtsi` and binds home-row mods, layer-taps, Bluetooth tap-dances, tmux
+prefix macros and window-manager chords that follow the OS.
 
-## Ecosystem Layout
+The module holds nothing that depends on a board. Key positions, layers, combos and build targets
+belong to each keyboard's config repo. The module reads a board's key positions through four macros
+the keymap defines before including it. [zmk](https://github.com/datapointchris/zmk) builds, draws,
+checks and flashes a config repo, and mounts this module into every local build.
 
-```text
-~/code/zmk/
-├── shared/     ← you are here (datapointchris/zmk-shared)
-├── corne42/    (datapointchris/zmk-config-corne42)
-├── glove80/    (datapointchris/zmk-config-glove80)
-└── piantor/    (datapointchris/zmk-config-piantor-pro-bt)
+## Install
+
+A config repo reaches the module two ways. A local build mounts a checkout of it, and CI fetches it
+through west.
+
+```bash
+git clone https://github.com/datapointchris/zmk-shared shared   # beside the config repos, named shared
 ```
 
-## Keyboards
+zmk looks for the module at `../shared` from the config repo it runs in. `ZMK_SHARED_DIR` names a
+checkout anywhere else. A bare `west build` takes it as `-DZMK_EXTRA_MODULES=<path>`, which ZMK
+prepends to its own module list. Passing `-DZEPHYR_EXTRA_MODULES` instead overwrites that list,
+which drops ZMK's own board definitions, and the build cannot find its board.
 
-| Keyboard | Keys | Board | ZMK Source | OS Switching |
-| --- | --- | --- | --- | --- |
-| Corne42 | 42 (3x6+3) | Nice!Nano v2 | upstream `main` | Runtime (conditional layers) |
-| Glove80 | 80 | Built-in (glove80_lh/rh) | MoErgo fork `main` | Compile-time (shelved) |
-| Piantor Pro BT | 42 (3x6+3) | Custom board defs | upstream `v0.3` | Runtime (conditional layers) |
+CI resolves the module through each config repo's `config/west.yml`, beside the entry for ZMK:
 
-## Shared Behaviors
+```yaml
+manifest:
+  remotes:
+    - name: datapointchris
+      url-base: https://github.com/datapointchris
+  projects:
+    - name: zmk-shared
+      remote: datapointchris
+      revision: main
+```
 
-All defined in `dts/shared_behaviors.dtsi` and available to every keyboard via `#include "shared_behaviors.dtsi"`.
+`zephyr/module.yml` declares the checkout a devicetree root. Zephyr puts its `dts/` directory on the
+include path, so a keymap includes `shared_behaviors.dtsi` by its bare name.
 
-### Modifier Macros
+## Starting from scratch
 
-| Define | Keys | Usage |
-| --- | --- | --- |
-| `HYPER` | Ctrl+Shift+GUI+Alt | Window manager |
-| `MEH` | Ctrl+Shift+Alt | Shortcuts |
-| `SUPER` | Ctrl+GUI+Alt | Shortcuts |
+```bash
+# from your package manager: git, docker (runnable without sudo), python3, and mikefarah's yq
+curl -fsSL https://raw.githubusercontent.com/datapointchris/zmk/main/install.sh | bash  # zmk, into ~/.local/bin
+mkdir -p ~/zmk && cd ~/zmk                                              # one directory for the module and its config repos
+git clone https://github.com/datapointchris/zmk-shared shared            # zmk finds it as ../shared
+git clone https://github.com/datapointchris/zmk-config-corne42 corne42   # any config repo that includes the module
+cd corne42                                                              # zmk acts on the config repo it runs in
+zmk build                                                               # compiles the keymap against ../shared; one .uf2 per target
+```
 
-### Bluetooth
+`zmk build` refuses when `../shared` holds no `zephyr/module.yml`, and prints the path it looked in.
+The first build fetches several gigabytes of ZMK and Zephyr into `~/.cache/zmk/corne42/`. Later
+builds are incremental, and each `.uf2` lands beside `build.yaml`.
 
-| Behavior | Description |
-| --- | --- |
-| `bt_0`..`bt_3` | Tap-dance: tap = select + BLE output, double-tap = disconnect |
-| `bt_select_0`..`bt_select_3` | Macros: switch to BLE output + select profile |
-| `ctrlaltdel` | Macro: Ctrl+Alt+Del |
+From here an edit to `dts/shared_behaviors.dtsi` reaches the next `zmk build` with no commit.
 
-### Home Row Mods
+## A keymap names its key positions, then includes the module
 
-All use balanced flavor, hold-trigger-on-release. Standard mods use 280ms tapping-term, 175ms quick-tap, 150ms require-prior-idle. Shift-specific variants use faster timing (200ms/175ms/100ms).
+```c
+#define KEYS_L 0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29
+#define KEYS_R 6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35
+#define THUMBS_L 36 37 38
+#define THUMBS_R 39 40 41
 
-| Behavior | Hand | Timing | Trigger Keys |
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/outputs.h>
+#include "shared_behaviors.dtsi"
+```
+
+Every hold-tap in the module names its trigger positions through those four macros, so the keymap
+defines them before the include. They are the only thing the module reads from a board. The
+positions above are a 42-key Corne's. The headers go first because the module binds ZMK's own
+behaviors, such as `&bt`, `&out` and `&caps_word`, and spells keys, Bluetooth commands and outputs
+with the names those headers define.
+
+The boards bind home-row mods GASC from the pinky inward: GUI, Alt, Shift, Ctrl, mirrored on the
+right. They pass real keycodes, as in `&hml LGUI A`.
+
+The module defines no layer. A layer-tap takes its layer as an argument, as in `&ltlt NPAD BSPC`,
+and each keymap numbers its own layers at its top. A layer's number is its block's position in that
+keymap, so one shared list would force every board into one order.
+
+## Hold-taps — the next key's position decides hold or tap
+
+| Behavior | What it is | Hold | A hold resolves from |
 | --- | --- | --- | --- |
-| `hml` | Left | Standard (280ms) | Right keys + all thumbs |
-| `hmr` | Right | Standard (280ms) | Left keys + all thumbs |
-| `hmls` | Left (shift) | Fast (200ms) | Right keys + all thumbs |
-| `hmrs` | Right (shift) | Fast (200ms) | Left keys + all thumbs |
-| `hmlt` | Left thumb | Standard (280ms) | Right keys + right thumbs |
-| `hmrt` | Right thumb | Standard (280ms) | Left keys + left thumbs |
+| `hml`, `hmr` | home-row mod, left and right | `&kp` | the other hand's keys, both thumb clusters |
+| `hmls`, `hmrs` | the Shift home-row mod, on faster timing | `&kp` | the other hand's keys, both thumb clusters |
+| `hmlt`, `hmrt` | thumb mod | `&kp` | the other hand's keys and thumbs |
+| `ltl`, `ltr` | layer-tap on a letter key | `&mo` | the other hand's keys, both thumb clusters |
+| `ltlt`, `ltrt` | layer-tap on a thumb | `&mo` | the other hand's keys and thumbs |
+| `ltltb`, `ltrtb` | thumb layer-tap for a layer on both hands | `&mo` | every key outside its own thumb cluster |
 
-### Layer-Tap (same timing as HRM)
+Every tap is `&kp`. Every hold-tap is balanced and triggers on release. The tapping term is 280 ms,
+with 175 ms quick-tap and 150 ms of prior idle. The Shift pair runs a 200 ms tapping term and 100 ms
+of prior idle. `dts/shared_behaviors.dtsi` is where those values are read and changed.
 
-| Behavior | Hand | Bindings | Trigger Keys |
-| --- | --- | --- | --- |
-| `ltl` | Left | `&mo`, `&kp` | Right keys + all thumbs |
-| `ltr` | Right | `&mo`, `&kp` | Left keys + all thumbs |
-| `ltlt` | Left thumb | `&mo`, `&kp` | Right keys + right thumbs |
-| `ltrt` | Right thumb | `&mo`, `&kp` | Left keys + left thumbs |
+The position list is the gate. A key pressed outside it resolves the hold-tap as a tap, so a
+same-hand roll types two letters rather than a modifier and a letter.
 
-### Tap-Dance
+The gate also decides what may be pressed first. Take a layer held on the left thumb with `ltlt`.
+A left-hand key on that layer, pressed before anything on the right, resolves the thumb as its tap.
+`ltltb` and `ltrtb` exist for a layer like that. They gate on everything but their own thumb
+cluster. The cost is that their tap can roll into the layer from either hand, so they belong on
+thumbs whose tap is not followed at once by a letter.
+
+## Tap-dances and macros — one key for an action that takes several
 
 | Behavior | Tap | Double-tap |
 | --- | --- | --- |
+| `bt_0` … `bt_3` | output to Bluetooth, then select that profile | disconnect that profile |
 | `caps_shift` | Right Shift | Caps Word |
 
-## Layer Architecture
+The Bluetooth tap-dances wait 200 ms for the second tap, and `caps_shift` waits 280 ms. Their tap
+halves stand alone as the macros `bt_select_0` … `bt_select_3`. `ctrlaltdel` sends
+Ctrl+Alt+Delete.
 
-Layers are numbered 0-8. Glove80 may not use all layers.
+`HYPER` (Ctrl+Shift+GUI+Alt), `MEH` (Ctrl+Shift+Alt) and `SUPER` (Ctrl+GUI+Alt) are modifier
+chords, bound as `&kp HYPER`.
 
-| # | Layer | Description |
-| --- | --- | --- |
-| 0 | BASE | QWERTY + home row mods (GASC) + combos for brackets/symbols |
-| 1 | COLEMAK | Colemak-DH, toggled via inner thumb combo |
-| 2 | DEVLEFT | Programming symbols (left hand) |
-| 3 | NPAD | Number pad (right) + navigation (left) |
-| 4 | SYSTEM | Bluetooth, media, bootloader, RGB, OS toggle |
-| 5 | NAV | Arrow keys + F1-F12 + sticky modifiers |
-| 6 | WM | Window manager (Linux: Super+key, macOS: see WM_MAC) |
-| 7 | OS_MAC | Ghost flag layer (all &trans) — toggles macOS mode |
-| 8 | WM_MAC | macOS WM override (Alt+key) — conditional on WM + OS_MAC |
+The `tmux_*` macros send tmux's prefix, Ctrl+Space, then one key. They cover the actions tmux
+exposes only through its prefix table. An action reachable as a plain chord is bound as that chord
+in the keymap instead, because a held chord auto-repeats and a macro fires once per press.
 
-WM layer right side: top row = move, home row = focus, bottom row = join/group. LSHIFT on bottom row for move-to-workspace. Ungroup/flatten on right outer pinky.
+| Macro | Key after the prefix |
+| --- | --- |
+| `tmux_split_v` | `\|` |
+| `tmux_split_h` | `-` |
+| `tmux_zoom` | `z` |
+| `tmux_newwin` | `c` |
+| `tmux_rename` | `,` |
+| `tmux_win_left` | `{` |
+| `tmux_win_right` | `}` |
+| `tmux_finder` | `w` |
+| `tmux_ses_left` | `<` |
+| `tmux_ses_right` | `>` |
+| `tmux_picker` | `s` |
+| `tmux_copy` | `[` |
 
-## Build System
+## `WMK()`, `WMSK()`, `WMCK()` — the window-manager chord follows the OS
 
-Every keyboard repo is driven by the same tool, run from inside it:
+| Macro | Linux, the default | macOS, built with `OS_MACOS` | For |
+| --- | --- | --- | --- |
+| `WMK(key)` | Super+key | Alt+key | focus and workspaces |
+| `WMSK(key)` | Super+Shift+key | Alt+Shift+key | moving a window |
+| `WMCK(key)` | Super+Ctrl+key | Alt+Ctrl+Shift+key | joining and grouping windows |
 
-| Tool | Purpose | Install |
-| --- | --- | --- |
-| `zmk` | Build, draw, check and flash | Shared tool |
-| `keymap-align` | Align keymap .dtsi columns | Shared tool |
-| `keymap` (keymap-drawer) | Generate SVG from YAML | `uv tool install keymap-drawer` |
+The split follows the window managers: i3 and sway bind Super, and AeroSpace binds Alt. A keymap
+binds the macros as `&kp WMK(H)`. They are not named `WM` and `WMS` because the boards use `WM` as a
+layer define.
 
-`zmk --help` is the command reference. Every path a repo needs derives from its
-single `config/*.keymap`, so a board repo declares nothing else.
+A board picks the OS in one of two ways:
 
-```sh
-zmk check     # what is missing or has drifted
-zmk sync      # align + draw + build
-zmk flash     # pick halves with fzf, then write each
+- **At build time.** A target whose `cmake-args` carry `-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS` compiles
+  the macOS chords. Changing OS means flashing the other firmware. The Glove80 config builds each
+  half both ways.
+- **At runtime.** The firmware is built without the flag, so the macros send Super. The keymap adds
+  a flag layer, `OS_MAC_LAYER`, with every key `&trans`, toggled from its SYSTEM layer. It adds
+  `WM_MAC_LAYER`, which rebinds the window-manager keys with `LA()`. A conditional layer raises
+  `WM_MAC_LAYER` while `WM` and `OS_MAC_LAYER` are both active. The Corne and Piantor configs work
+  this way.
+
+Runtime switching puts two constraints on the keymap. `WM_MAC_LAYER` takes a higher number than
+`WM`, because ZMK resolves a key from the highest active layer down. Every combo lists
+`OS_MAC_LAYER` in its `layers`, because ZMK matches a combo against the highest active layer and
+the toggled flag layer sits above `BASE`. A combo without it does not fire in macOS mode.
+
+## Each config repo compiles the module against the ZMK it pins
+
+- [zmk-config-corne42](https://github.com/datapointchris/zmk-config-corne42) builds against
+  upstream ZMK at `main`, and switches OS at runtime.
+- [zmk-config-piantor-pro-bt](https://github.com/datapointchris/zmk-config-piantor-pro-bt) pins an
+  upstream ZMK release rather than `main`, carries its own board definition, and switches OS at
+  runtime.
+- [zmk-config-glove80](https://github.com/datapointchris/zmk-config-glove80) builds against
+  MoErgo's fork of ZMK, and switches OS at build time.
+
+A config repo owns everything positional: its key-position macros, its layers and their order, its
+combos, its OS-switching layers, its build targets and its drawing. This repo owns the behaviors
+those keymaps bind.
+
+Each build compiles `shared_behaviors.dtsi` against the ZMK its own `config/west.yml` pins. A
+property added to a behavior here has to exist in every one of those ZMKs, or Zephyr rejects it as
+undeclared in that build. From the directory holding the clones:
+
+```bash
+rg -l zmk-shared */config/west.yml       # every config repo that includes the module
+rg -A2 'name: zmk$' */config/west.yml    # the ZMK each one pins
+rg -lw hmls */config/*.keymap            # the keymaps binding a behavior, before changing it
 ```
 
-## How It Works
+## Changing a behavior — a local build compiles the working tree, CI only what is pushed
 
-Each keyboard's `config/west.yml` pulls this repo as a Zephyr module:
-
-```yaml
-projects:
-  - name: zmk-shared
-    remote: datapointchris
-    revision: main
+```bash
+cd ../corne42   # one board first
+zmk sync        # align, draw and build, with ../shared mounted as it is on disk
+zmk check       # whether the drawing still matches the keymap; exit 1 on any drift
+zmk flash       # pick halves with fzf, then write each
 ```
 
-The `zephyr/module.yml` registers the DTS root, making `shared_behaviors.dtsi` available to all keymaps via `#include "shared_behaviors.dtsi"`.
+zmk mounts `../shared` read-only into the build container and passes it to ZMK as
+`ZMK_EXTRA_MODULES`. A local build compiles the working tree, so a change reaches it with no commit.
+Every other config repo that binds what changed takes the same `zmk sync` and `zmk check`.
 
-## Keymap Editing Workflow
+CI has no mount. It fetches the module through `config/west.yml` at `main`. Push this repo before a
+config repo that depends on the change, or that repo's CI run compiles against a `main` without it.
 
-1. Edit shared behavior in `dts/shared_behaviors.dtsi` (affects ALL keyboards)
-2. Or edit a specific keyboard's keymap in its repo
-3. Update that keyboard's `<stem>_keymap.yaml` to match — it is hand-written,
-   because `keymap parse` cannot read these keymaps
-4. Run `zmk sync` to align, redraw and build
-5. Run `zmk check` to confirm the drawing did not fall behind the keymap
-6. Run `zmk flash` and double-tap reset on each half as it asks
+This repo's own CI runs lint hooks and compiles nothing. A behavior change is first compiled by a
+board's build, local or CI.
 
-## Files
+`zmk check` knows this module's layer-taps by name. It reads `ltl`, `ltr`, `ltlt`, `ltrt`, `ltltb`
+and `ltrtb` as keys holding a layer open, and checks each one's drawn hold legend against the layer
+it opens. A layer-tap added here under another name escapes that check until zmk learns the name.
 
-```text
-dts/shared_behaviors.dtsi  - All shared behaviors, macros, and layer defines
-zephyr/module.yml          - Registers this repo as a Zephyr module
-keymap_drawer.config.yaml  - Shared keymap-drawer styling (dark theme)
-```
+`zmk draw` reads `keymap_drawer.config.yaml` from the config repo it runs in. Each config repo
+carries its own, so no drawing reads the copy in this repo.
