@@ -217,5 +217,5 @@ board's build, local or CI.
 and `ltrtb` as keys holding a layer open, and checks each one's drawn hold legend against the layer
 it opens. A layer-tap added here under another name escapes that check until zmk learns the name.
 
-`zmk draw` reads `keymap_drawer.config.yaml` from the config repo it runs in. Each config repo
-carries its own, so no drawing reads the copy in this repo.
+`zmk draw` reads `keymap_drawer.config.yaml` from the config repo it runs in. This module carries
+no drawer config, so each config repo keeps its own.
