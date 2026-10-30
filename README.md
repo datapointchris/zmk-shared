@@ -96,9 +96,9 @@ keymap, so one shared list would force every board into one order.
 | `ltlt`, `ltrt` | layer-tap on a thumb | `&mo` | the other hand's keys and thumbs |
 | `ltltb`, `ltrtb` | thumb layer-tap for a layer on both hands | `&mo` | every key outside its own thumb cluster |
 
-Every tap is `&kp`. Every hold-tap is balanced and triggers on release. The tapping term is 280 ms,
-with 175 ms quick-tap and 150 ms of prior idle. The Shift pair runs a 200 ms tapping term and 100 ms
-of prior idle. `dts/shared_behaviors.dtsi` is where those values are read and changed.
+Every tap is `&kp`. Every hold-tap is balanced and triggers on release. The Shift pair runs a
+shorter tapping term and prior idle than the rest. `dts/shared_behaviors.dtsi` holds every timing,
+and `QUICK_TAP_MS` at its top sets quick-tap for every hold-tap.
 
 The position list is the gate. A key pressed outside it resolves the hold-tap as a tap, so a
 same-hand roll types two letters rather than a modifier and a letter.
@@ -116,9 +116,8 @@ thumbs whose tap is not followed at once by a letter.
 | `bt_0` … `bt_3` | output to Bluetooth, then select that profile | disconnect that profile |
 | `caps_shift` | Right Shift | Caps Word |
 
-The Bluetooth tap-dances wait 200 ms for the second tap, and `caps_shift` waits 280 ms. Their tap
-halves stand alone as the macros `bt_select_0` … `bt_select_3`. `ctrlaltdel` sends
-Ctrl+Alt+Delete.
+The Bluetooth tap-dances' tap halves stand alone as the macros `bt_select_0` … `bt_select_3`.
+`ctrlaltdel` sends Ctrl+Alt+Delete.
 
 `HYPER` (Ctrl+Shift+GUI+Alt), `MEH` (Ctrl+Shift+Alt) and `SUPER` (Ctrl+GUI+Alt) are modifier
 chords, bound as `&kp HYPER`.

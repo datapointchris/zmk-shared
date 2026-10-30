@@ -62,9 +62,10 @@ Every board repo is driven by `zmk`, run from inside it. There is no Makefile. E
 `zmk draw` renders and does not parse. Each `<stem>_keymap.yaml` is hand-written.
 `keymap parse` reads these keymaps and exits 0, but it writes raw bindings such as
 `&tmux_zoom` where the drawing carries a legend such as `ZOOM`. So a change to a
-keymap does not reach the drawing. `zmk check` is the only thing that catches it: it compares every cell by
-class, and checks that each `&mo`, layer-tap and `&magic` is labelled with the
-layer it opens and that the layer marks one of the keys reaching it.
+keymap does not reach the drawing. `zmk check` is the only thing that catches it:
+it compares every cell by class, and checks that each `&mo`, layer-tap and
+`&magic` is labeled with the layer it opens and that the layer marks one of the
+keys reaching it.
 
 ## Cross-Repo Workflow
 
