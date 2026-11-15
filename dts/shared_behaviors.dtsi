@@ -3,7 +3,13 @@
 #define MEH LC(LS(LALT))
 #define SUPER LC(LG(LALT))
 
+/* Timings shared by every hold-tap. The Shift pair resolves faster. */
 #define QUICK_TAP_MS 175
+#define HOLD_TAP_TERM_MS 280
+#define HOLD_TAP_PRIOR_IDLE_MS 150
+#define SHIFT_HOLD_TAP_TERM_MS 200
+#define SHIFT_HOLD_TAP_PRIOR_IDLE_MS 100
+#define BT_TAP_DANCE_TERM_MS 200
 
 /* OS-conditional window manager macros (AeroSpace=Alt, i3/sway=Super) */
 #ifdef OS_MACOS
@@ -126,28 +132,28 @@
         bt_0: bt_0 {
             compatible      = "zmk,behavior-tap-dance";
             #binding-cells  = <0>;
-            tapping-term-ms = <200>;
+            tapping-term-ms = <BT_TAP_DANCE_TERM_MS>;
             bindings        = <&bt_select_0>, <&bt BT_DISC 0>;
         };
 
         bt_1: bt_1 {
             compatible      = "zmk,behavior-tap-dance";
             #binding-cells  = <0>;
-            tapping-term-ms = <200>;
+            tapping-term-ms = <BT_TAP_DANCE_TERM_MS>;
             bindings        = <&bt_select_1>, <&bt BT_DISC 1>;
         };
 
         bt_2: bt_2 {
             compatible      = "zmk,behavior-tap-dance";
             #binding-cells  = <0>;
-            tapping-term-ms = <200>;
+            tapping-term-ms = <BT_TAP_DANCE_TERM_MS>;
             bindings        = <&bt_select_2>, <&bt BT_DISC 2>;
         };
 
         bt_3: bt_3 {
             compatible      = "zmk,behavior-tap-dance";
             #binding-cells  = <0>;
-            tapping-term-ms = <200>;
+            tapping-term-ms = <BT_TAP_DANCE_TERM_MS>;
             bindings        = <&bt_select_3>, <&bt BT_DISC 3>;
         };
 
@@ -162,9 +168,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
             bindings                   = <&kp>, <&kp>;
@@ -174,9 +180,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <200>;
+            tapping-term-ms            = <SHIFT_HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <100>;
+            require-prior-idle-ms      = <SHIFT_HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
             bindings                   = <&kp>, <&kp>;
@@ -186,9 +192,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_R>;
             bindings                   = <&kp>, <&kp>;
@@ -198,9 +204,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L THUMBS_R>;
             bindings                   = <&kp>, <&kp>;
@@ -210,9 +216,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <200>;
+            tapping-term-ms            = <SHIFT_HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <100>;
+            require-prior-idle-ms      = <SHIFT_HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L THUMBS_R>;
             bindings                   = <&kp>, <&kp>;
@@ -222,9 +228,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L>;
             bindings                   = <&kp>, <&kp>;
@@ -234,9 +240,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_L THUMBS_R>;
             bindings                   = <&mo>, <&kp>;
@@ -246,9 +252,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_R THUMBS_R>;
             bindings                   = <&mo>, <&kp>;
@@ -258,9 +264,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L THUMBS_R>;
             bindings                   = <&mo>, <&kp>;
@@ -270,9 +276,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L THUMBS_L>;
             bindings                   = <&mo>, <&kp>;
@@ -295,9 +301,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_R>;
             bindings                   = <&mo>, <&kp>;
@@ -307,9 +313,9 @@
             compatible                 = "zmk,behavior-hold-tap";
             #binding-cells             = <2>;
             flavor                     = "balanced";
-            tapping-term-ms            = <280>;
+            tapping-term-ms            = <HOLD_TAP_TERM_MS>;
             quick-tap-ms               = <QUICK_TAP_MS>;
-            require-prior-idle-ms      = <150>;
+            require-prior-idle-ms      = <HOLD_TAP_PRIOR_IDLE_MS>;
             hold-trigger-on-release;
             hold-trigger-key-positions = <KEYS_L KEYS_R THUMBS_L>;
             bindings                   = <&mo>, <&kp>;
