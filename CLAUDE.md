@@ -20,34 +20,14 @@ Pinky GUI, ring Alt, middle Shift, index Ctrl, mirrored on the right hand. The k
 
 Keymaps use real keycodes directly (e.g., `&hml LGUI A`), not `MOD_*` defines.
 
-### WM Macros
+### WM Macros, OS Switching and tmux Macros
 
-- `WMK(key)` — sends Alt+key on macOS, Super+key on Linux (focus, workspaces)
-- `WMSK(key)` — sends Alt+Shift+key on macOS, Super+Shift+key on Linux (move windows)
-- `WMCK(key)` — sends Alt+Ctrl+Shift+key on macOS, Super+Ctrl+key on Linux (join/group windows)
+README.md owns these. Its `WMK()`, `WMSK()`, `WMCK()` section gives what each macro sends, the
+two ways a board picks the OS, and the constraints runtime switching puts on a keymap. Its
+tap-dances and macros section lists the `tmux_*` macros.
 
-Note: Named `WMK`/`WMSK` (not `WM`/`WMS`) to avoid colliding with the `WM` layer define.
-
-### OS Switching
-
-Runtime OS switching via conditional layers (no separate macOS/Linux firmware builds needed):
-
-- `OS_MAC_LAYER`: ghost flag layer (all `&trans`), toggled via `&tog OS_MAC_LAYER` on SYSTEM layer
-- `WM_MAC_LAYER`: macOS WM bindings using `LA()` instead of `LG()`. It must be numbered **above** both `WM` and `OS_MAC_LAYER`, since a conditional layer activates on top
-- Conditional layer: when WM + OS_MAC_LAYER are both active, WM_MAC_LAYER auto-activates on top
-- Default is Linux (Super+key). Toggle OS_MAC_LAYER for macOS (Alt+key)
-
-The `_LAYER` suffix is not decoration — `WM` is already a layer define, so the macOS layers cannot
-take the bare names. Writing `&tog OS_MAC` does not compile.
-
-Legacy compile-time switching (`-DDTS_EXTRA_CPPFLAGS=-DOS_MACOS`) is still supported via the `#ifdef` macros for keyboards that haven't migrated (e.g., Glove80).
-
-### tmux Macros
-
-`tmux_*` macros send the prefix (Ctrl+Space) then one key, for the actions tmux
-only exposes through its prefix table. Anything reachable as a plain chord is
-bound directly in the TMUX layer instead, because a chord auto-repeats when held
-and a macro fires once per press.
+The macOS layers are named `OS_MAC_LAYER` and `WM_MAC_LAYER` because `WM` is already a layer
+define, so they cannot take the bare names. Writing `&tog OS_MAC` does not compile.
 
 ### Colemak-DH and WM Layers
 
@@ -75,13 +55,15 @@ When changing shared behaviors:
 2. Test in ONE keyboard repo first: `cd ../corne42 && zmk build`
 3. Then rebuild others: `cd ../glove80 && zmk build`, etc.
 
-Local edits take effect immediately — `zmk` bind-mounts this directory into the Docker container via `ZMK_EXTRA_MODULES`. No push/pull cycle needed locally.
-
-**Push this repo before the board repo.** CI has no bind-mount and resolves the module through each board's `config/west.yml`, which declares it from GitHub at `main`. Pushing the board first makes its run compile against a `main` that lacks the change. This repo's own workflow runs the lint hooks and compiles nothing, so no build checks a behavior change until a board builds it.
+**Push this repo before the board repo.** README.md's section on changing a behavior says why: a
+local build mounts this working tree, while CI fetches the module at `main` and this repo's own
+workflow compiles nothing.
 
 ## Build Pitfalls
 
-**`ZEPHYR_EXTRA_MODULES` vs `ZMK_EXTRA_MODULES`** (⚠️ CRITICAL): Never pass `-DZEPHYR_EXTRA_MODULES` from the command line — ZMK uses this variable internally to register its own modules (board definitions like `nice_nano`). A CLI `-D` flag overrides `set()` in CMakeLists, clobbering ZMK's module list and causing "Invalid BOARD" / "No board named 'nice_nano' found" errors. Always use `-DZMK_EXTRA_MODULES` instead — ZMK prepends this to its own list.
+**"Invalid BOARD" or "No board named 'nice_nano' found"** means the build was passed
+`-DZEPHYR_EXTRA_MODULES`. README.md's Install section says why that drops ZMK's board definitions
+and what to pass instead.
 
 **CMake cache poisoning**: A bad `-D` flag persists in `CMakeCache.txt` even after fixing the script. After changing any CMake flags, the next build MUST be `zmk build --pristine` to clear the cache. `--pristine` only wipes the build directory — it does NOT re-download the west workspace, so it's fast. `zmk clean` destroys the board's entire west workspace (~5-10 min re-download) and is almost never the right fix for board errors.
 
@@ -92,8 +74,8 @@ These apply in every board repo. Each board's own CLAUDE.md adds only what diffe
 - **Rebuild firmware after every keymap change** — run `zmk sync` (align + draw + build) before committing, then `zmk check`. Source changes without a build are useless; the UF2 file is what gets flashed. `check` is what catches the drawing falling behind, which `sync` alone does not.
 - Changes to `shared_behaviors.dtsi` affect ALL keyboards — test carefully
 - Each keyboard defines its own `KEYS_L`, `KEYS_R`, `THUMBS_L`, `THUMBS_R` in its keymap (position numbers differ per keyboard)
-- **The gate decides what may be pressed FIRST, not just what resolves a hold.** A key outside `hold-trigger-key-positions` resolves the hold-tap as a *tap*. So a layer with modifiers on one hand and targets on the other cannot be entered by pressing the modifier first — it types the tap. That is what `ltltb`/`ltrtb` exist for.
+- **The gate decides what may be pressed first, not just what resolves a hold.** The comment above `ltltb` in `dts/shared_behaviors.dtsi` explains it, and why `ltltb`/`ltrtb` exist.
 - **A layer's index comes from the order of its block in `keymap`, not from its define.** Count the blocks in that board's keymap rather than assuming. Append a new layer last or the define points somewhere else, and nothing errors — the layer just does the wrong thing.
 - The `hold-trigger-key-positions` in HRM behaviors reference the position macros, which must be defined before `#include "shared_behaviors.dtsi"`
-- **On boards with runtime OS switching (corne42, piantor)**: combos must include `OS_MAC_LAYER` in their `layers` property or they won't fire in macOS mode. Glove80 uses compile-time OS switching and has no `OS_MAC` layer, so this does not apply there.
+- **On boards with runtime OS switching**, every combo lists `OS_MAC_LAYER` in its `layers`. README.md's `WMK()` section gives the reason and the layer-numbering constraint beside it.
 - Shift uses `hmls`/`hmrs` (faster timing) instead of `hml`/`hmr` on every board.
